@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A4Hub - Modern Recruitment Platform</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="logo">A4Hub</div>
+            <div class="nav-links">
+                <a href="#about">About</a>
+                <a href="#features">Features</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="hero-section">
+        <div class="hero-content">
+            <h1>Welcome to A4Hub</h1>
+            <p class="hero-subtitle">The Modern Way to Recruit and Get Hired</p>
+            
+            <div class="cta-buttons">
+                <a href="pages/recruiter/dashboard.html" class="cta-button recruiter">
+                    I'm Hiring
+                    <span class="arrow">→</span>
+                </a>
+                <a href="pages/jobseeker/profile.html" class="cta-button jobseeker">
+                    I'm Job Hunting
+                    <span class="arrow">→</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="hero-animation" style="width: 50%; height: 100vh; position: relative;">
+            <div id="cvAnimation" style="width: 100%; height: 100%; position: relative; background: #f5f5f5; overflow: hidden;">
+                <!-- The CV template will be drawn here -->
+            </div>
+        </div>
+    </main>
+
+    <section class="features" id="features">
+        <h2>Why Choose A4Hub?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Video Introductions</h3>
+                <p>Stand out with personal video presentations</p>
+            </div>
+            <div class="feature-card">
+                <h3>AI Case Studies</h3>
+                <p>Show your skills through real-world scenarios</p>
+            </div>
+            <div class="feature-card">
+                <h3>Real-time Tracking</h3>
+                <p>Know exactly where you stand in the process</p>
+            </div>
+            <div class="feature-card">
+                <h3>Feedback Inbox</h3>
+                <p>Get valuable insights from recruiters</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>A4Hub</h4>
+                <p>Modern recruitment for modern teams</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="pages/tracking/status.html">Track Application</a>
+                <a href="#features">Features</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage.js"></script>
+    
+    <!-- Your Firebase Config -->
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            // Paste your Firebase config here
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <!-- Your app's JavaScript -->
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/models.js"></script>
+    <script type="module" src="js/services.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html> 

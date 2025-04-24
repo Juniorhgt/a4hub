@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Seeker Profile - A4Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="logo">A4Hub</div>
+            <div class="nav-links">
+                <a href="#profile">Profile</a>
+                <a href="#applications">Applications</a>
+                <a href="#feedback">Feedback</a>
+                <a href="#jobs">Find Jobs</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="profile-page">
+        <section class="profile-header">
+            <div class="profile-info">
+                <div class="profile-main">
+                    <div class="profile-image-upload">
+                        <div class="profile-image">
+                            <!-- Placeholder for profile image -->
+                            <div class="placeholder">Upload Photo</div>
+                        </div>
+                        <button class="button-secondary">Change Photo</button>
+                    </div>
+                    <div class="profile-details">
+                        <h1>Complete Your Profile</h1>
+                        <p class="profile-subtitle">Stand out with a video introduction and your skills</p>
+                    </div>
+                </div>
+                <div class="profile-completion">
+                    <div class="completion-bar">
+                        <div class="completion-progress" style="width: 60%"></div>
+                    </div>
+                    <p>Profile Completion: 60%</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="profile-content">
+            <div class="profile-section video-intro">
+                <h2>Video Introduction</h2>
+                <div class="video-upload-container">
+                    <div class="video-preview">
+                        <div class="placeholder">
+                            <span class="upload-icon">📹</span>
+                            <p>Record or upload your video introduction</p>
+                            <small>Max 2 minutes</small>
+                        </div>
+                    </div>
+                    <div class="video-actions">
+                        <button class="cta-button jobseeker">Record Video</button>
+                        <button class="button-outline">Upload Video</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section rap-sheet">
+                <h2>Your Rap Sheet</h2>
+                <div class="rap-sheet-content">
+                    <div class="rap-sheet-form">
+                        <div class="form-group">
+                            <label for="title">Professional Title</label>
+                            <input type="text" id="title" placeholder="e.g., Senior Frontend Developer">
+                        </div>
+                        <div class="form-group">
+                            <label for="summary">Professional Summary</label>
+                            <textarea id="summary" rows="4" placeholder="Brief overview of your experience and goals"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Key Skills</label>
+                            <div class="skills-input">
+                                <input type="text" id="skillInput" placeholder="Add a skill">
+                                <button class="button-secondary">Add</button>
+                            </div>
+                            <div class="skills-tags">
+                                <span class="skill-tag">JavaScript<button class="remove-skill">×</button></span>
+                                <span class="skill-tag">React<button class="remove-skill">×</button></span>
+                                <span class="skill-tag">Node.js<button class="remove-skill">×</button></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section case-studies">
+                <h2>Case Study Responses</h2>
+                <div class="case-studies-list">
+                    <div class="case-study-card">
+                        <h3>Frontend Architecture Challenge</h3>
+                        <p>Demonstrate your approach to building scalable frontend applications</p>
+                        <button class="button-secondary">Start Case Study</button>
+                    </div>
+                    <div class="case-study-card completed">
+                        <h3>API Design Challenge</h3>
+                        <p>Completed on July 15, 2023</p>
+                        <button class="button-outline">View Response</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Video Recording Modal -->
+    <div class="modal" id="videoRecordModal">
+        <div class="modal-content">
+            <h2>Record Your Introduction</h2>
+            <div class="video-recorder">
+                <video id="videoPreview" autoplay muted></video>
+                <div class="recorder-controls">
+                    <button class="button-icon" id="startRecord">⏺️</button>
+                    <button class="button-icon" id="stopRecord">⏹️</button>
+                    <button class="button-icon" id="playPreview">▶️</button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="button-outline" onclick="closeVideoModal()">Cancel</button>
+                <button class="cta-button jobseeker">Save Video</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/main.js"></script>
+    <script src="../../js/animations.js"></script>
+</body>
+</html> 

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidates - A4Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="../../index.html" class="logo">A4Hub</a>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="jobs.html">My Jobs</a>
+                <a href="candidates.html" class="active">Candidates</a>
+                <a href="#" id="logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="candidates-container">
+        <div class="candidates-header">
+            <h1>Candidates</h1>
+            <div class="candidate-filters">
+                <select id="jobFilter">
+                    <option value="">All Jobs</option>
+                </select>
+                <select id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending Review</option>
+                    <option value="shortlisted">Shortlisted</option>
+                    <option value="interview">Interview</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="candidates-grid" id="candidatesContainer">
+            <!-- Candidates will be loaded here -->
+        </div>
+    </main>
+
+    <!-- Candidate Details Modal -->
+    <div class="modal" id="candidateModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="candidateContent"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { JobService } from '../../js/services.js';
+        import { auth } from '../../js/firebase-config.js';
+
+        // Check authentication
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = '../../pages/auth.html';
+                return;
+            }
+        });
+
+        // Load candidates
+        async function loadCandidates() {
+            try {
+                const jobs = await JobService.getActiveJobs();
+                const candidatesContainer = document.getElementById('candidatesContainer');
+                const jobFilter = document.getElementById('jobFilter');
+                
+                // Populate job filter
+                jobFilter.innerHTML = '<option value="">All Jobs</option>' + 
+                    jobs.map(job => `<option value="${job.id}">${job.jobTitle}</option>`).join('');
+
+                // Load all applications
+                const allApplications = await Promise.all(
+                    jobs.map(async job => {
+                        const applications = await JobService.getApplicationsForJob(job.id);
+                        return applications.map(app => ({ ...app, job }));
+                    })
+                );
+
+                const flattenedApplications = allApplications.flat();
+                
+                if (flattenedApplications.length === 0) {
+                    candidatesContainer.innerHTML = '<p class="no-candidates">No applications yet.</p>';
+                    return;
+                }
+
+                candidatesContainer.innerHTML = flattenedApplications.map(app => `
+                    <div class="candidate-card" data-status="${app.status}">
+                        <div class="candidate-header">
+                            <h3>${app.job.jobTitle}</h3>
+                            <span class="candidate-name">${app.userId}</span>
+                        </div>
+                        <div class="candidate-status">
+                            <span class="status-badge ${app.status}">${app.status}</span>
+                        </div>
+                        <div class="candidate-actions">
+                            <button onclick="viewCandidate('${app.job.id}', '${app.userId}')" class="btn btn-primary">
+                                View Application
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading candidates:', error);
+                document.getElementById('candidatesContainer').innerHTML = 
+                    '<p class="error">Error loading candidates. Please try again later.</p>';
+            }
+        }
+
+        // View candidate details
+        async function viewCandidate(jobId, userId) {
+            try {
+                const job = await JobService.getJobById(jobId);
+                const applications = await JobService.getApplicationsForJob(jobId);
+                const application = applications.find(app => app.userId === userId);
+                
+                if (!application) {
+                    throw new Error('Application not found');
+                }
+
+                const modal = document.getElementById('candidateModal');
+                const modalContent = document.getElementById('candidateContent');
+                
+                modalContent.innerHTML = `
+                    <div class="candidate-details">
+                        <h2>${job.jobTitle}</h2>
+                        <h3>Application by ${userId}</h3>
+                        
+                        <div class="application-content">
+                            <div class="cover-letter">
+                                <h4>Cover Letter</h4>
+                                <p>${application.coverLetter}</p>
+                            </div>
+                            
+                            <div class="resume-section">
+                                <h4>Resume</h4>
+                                <a href="${application.resumeUrl}" target="_blank" class="btn btn-secondary">
+                                    View Resume
+                                </a>
+                            </div>
+                            
+                            ${application.videoUrl ? `
+                                <div class="video-section">
+                                    <h4>Video Introduction</h4>
+                                    <video controls>
+                                        <source src="${application.videoUrl}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="business-case">
+                                <h4>Business Case Response</h4>
+                                <div class="rating-section">
+                                    <div class="star-rating">
+                                        <span>Rate the response:</span>
+                                        <div class="stars">
+                                            ${[1, 2, 3, 4, 5].map(star => `
+                                                <i class="fas fa-star" 
+                                                   data-rating="${star}"
+                                                   onclick="rateResponse('${jobId}', '${userId}', ${star})"
+                                                   style="cursor: pointer; ${star <= application.rating ? 'color: gold;' : 'color: #ccc;'}"></i>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="candidate-actions">
+                                <button onclick="moveToInterview('${jobId}', '${userId}')" 
+                                        class="btn btn-primary"
+                                        ${application.status === 'interview' ? 'disabled' : ''}>
+                                    Move to Interview
+                                </button>
+                                <button onclick="rejectCandidate('${jobId}', '${userId}')" 
+                                        class="btn btn-danger"
+                                        ${application.status === 'rejected' ? 'disabled' : ''}>
+                                    Reject
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                modal.style.display = 'block';
+            } catch (error) {
+                console.error('Error loading candidate details:', error);
+                alert('Error loading candidate details. Please try again.');
+            }
+        }
+
+        // Rate candidate's response
+        async function rateResponse(jobId, userId, rating) {
+            try {
+                await JobService.updateApplicationRating(jobId, userId, rating);
+                const stars = document.querySelectorAll('.star-rating .fa-star');
+                stars.forEach(star => {
+                    star.style.color = parseInt(star.dataset.rating) <= rating ? 'gold' : '#ccc';
+                });
+            } catch (error) {
+                console.error('Error rating response:', error);
+                alert('Error rating response. Please try again.');
+            }
+        }
+
+        // Move candidate to interview
+        async function moveToInterview(jobId, userId) {
+            try {
+                await JobService.updateApplicationStatus(jobId, userId, 'interview');
+                const interviewLink = await JobService.generateInterviewLink(jobId, userId);
+                
+                // Send email with interview link
+                await JobService.sendInterviewInvite(userId, interviewLink);
+                
+                alert('Candidate moved to interview stage. Interview link has been sent.');
+                closeModal();
+                loadCandidates();
+            } catch (error) {
+                console.error('Error moving to interview:', error);
+                alert('Error moving to interview. Please try again.');
+            }
+        }
+
+        // Reject candidate
+        async function rejectCandidate(jobId, userId) {
+            try {
+                await JobService.updateApplicationStatus(jobId, userId, 'rejected');
+                alert('Candidate has been rejected.');
+                closeModal();
+                loadCandidates();
+            } catch (error) {
+                console.error('Error rejecting candidate:', error);
+                alert('Error rejecting candidate. Please try again.');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('candidateModal').style.display = 'none';
+        }
+
+        // Load candidates when page loads
+        document.addEventListener('DOMContentLoaded', loadCandidates);
+    </script>
+</body>
+</html> 

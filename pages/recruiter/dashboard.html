@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post a Job - A4Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="../../index.html" class="logo">A4Hub</a>
+            <div class="nav-links">
+                <a href="#jobs">Active Jobs</a>
+                <a href="#candidates">Candidates</a>
+                <a href="#settings">Settings</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="dashboard">
+        <!-- Step Progress Indicator -->
+        <div class="step-progress">
+            <div class="step active" id="step1">
+                <div class="step-number">1</div>
+                <div class="step-label">Company Info</div>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-number">2</div>
+                <div class="step-label">Role Details</div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-number">3</div>
+                <div class="step-label">Business Case</div>
+            </div>
+        </div>
+
+        <!-- Company Info Form -->
+        <section class="posting-section active" id="companyInfo">
+            <h2>Company Information</h2>
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="companyName">Company Name</label>
+                    <input type="text" id="companyName" required placeholder="e.g., Tech Solutions Inc.">
+                </div>
+                <div class="form-group">
+                    <label for="companySize">Company Size</label>
+                    <select id="companySize" required>
+                        <option value="">Select company size</option>
+                        <option value="1-10">1-10 employees</option>
+                        <option value="11-50">11-50 employees</option>
+                        <option value="51-200">51-200 employees</option>
+                        <option value="201-500">201-500 employees</option>
+                        <option value="501+">501+ employees</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="companyIndustry">Industry</label>
+                    <select id="companyIndustry" required>
+                        <option value="">Select industry</option>
+                        <option value="technology">Technology</option>
+                        <option value="finance">Finance</option>
+                        <option value="healthcare">Healthcare</option>
+                        <option value="retail">Retail</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="companyLocation">Location</label>
+                    <input type="text" id="companyLocation" required placeholder="e.g., London, UK (or Remote)">
+                </div>
+                <div class="form-actions">
+                    <button class="cta-button recruiter" onclick="nextStep('roleDetails')">Next: Role Details</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Role Details Form -->
+        <section class="posting-section" id="roleDetails">
+            <h2>Role Details</h2>
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="jobTitle">Job Title</label>
+                    <input type="text" id="jobTitle" required placeholder="e.g., Senior Frontend Developer">
+                </div>
+                <div class="form-group">
+                    <label for="experienceRange">Experience Range</label>
+                    <div class="experience-range">
+                        <select id="minExperience" required>
+                            <option value="">Min</option>
+                            <option value="0">0 years</option>
+                            <option value="1">1 year</option>
+                            <option value="2">2 years</option>
+                            <option value="3">3 years</option>
+                            <option value="5">5 years</option>
+                            <option value="7">7 years</option>
+                            <option value="10">10+ years</option>
+                        </select>
+                        <span>to</span>
+                        <select id="maxExperience" required>
+                            <option value="">Max</option>
+                            <option value="2">2 years</option>
+                            <option value="3">3 years</option>
+                            <option value="5">5 years</option>
+                            <option value="7">7 years</option>
+                            <option value="10">10 years</option>
+                            <option value="15">15+ years</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="jobDescription">Job Description</label>
+                    <textarea id="jobDescription" rows="6" required 
+                        placeholder="Describe the role, responsibilities, and requirements..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="keySkills">Key Skills Required</label>
+                    <div class="skills-input">
+                        <input type="text" id="skillInput" placeholder="Add a required skill">
+                        <button class="button-secondary" onclick="addSkill()">Add</button>
+                    </div>
+                    <div class="skills-tags" id="skillsList">
+                        <!-- Skills will be added here dynamically -->
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="button-outline" onclick="previousStep('companyInfo')">Back</button>
+                    <button class="cta-button recruiter" onclick="nextStep('businessCase')">Next: Business Case</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Business Case Form -->
+        <section class="posting-section" id="businessCase">
+            <h2>Business Case Generation</h2>
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="problemStatement">Problem Statement</label>
+                    <textarea id="problemStatement" rows="4" required 
+                        placeholder="Describe a real problem or challenge that the candidate might face in this role..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="contextDetails">Additional Context</label>
+                    <textarea id="contextDetails" rows="4" 
+                        placeholder="Provide any additional context or constraints that would help frame the business case..."></textarea>
+                </div>
+                <div class="ai-preview">
+                    <h3>AI-Generated Case Study Preview</h3>
+                    <div class="preview-container" id="caseStudyPreview">
+                        <p class="placeholder">Click 'Generate Case Study' to preview the AI-generated content</p>
+                    </div>
+                    <button class="button-secondary" onclick="generateCaseStudy()">
+                        <span class="icon">🤖</span> Generate Case Study
+                    </button>
+                </div>
+                <div class="form-actions">
+                    <button class="button-outline" onclick="previousStep('roleDetails')">Back</button>
+                    <button class="cta-button recruiter" onclick="publishJob()">Publish Job</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="../../js/main.js"></script>
+    <script src="../../js/animations.js"></script>
+    <script type="module">
+        import { JobService } from '../../js/services.js';
+        import { auth } from '../../js/firebase-config.js';
+
+        // Check authentication
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = '../../pages/auth.html';
+                return;
+            }
+        });
+
+        // Job posting flow navigation
+        function nextStep(step) {
+            document.querySelectorAll('.posting-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(step).classList.add('active');
+            updateProgress(step);
+        }
+
+        function previousStep(step) {
+            nextStep(step);
+        }
+
+        function updateProgress(step) {
+            const steps = ['companyInfo', 'roleDetails', 'businessCase'];
+            const currentIndex = steps.indexOf(step);
+            
+            document.querySelectorAll('.step').forEach((stepEl, index) => {
+                if (index <= currentIndex) {
+                    stepEl.classList.add('active');
+                } else {
+                    stepEl.classList.remove('active');
+                }
+            });
+        }
+
+        // Skills management
+        function addSkill() {
+            const input = document.getElementById('skillInput');
+            const skillsList = document.getElementById('skillsList');
+            
+            if (input.value.trim()) {
+                const skill = document.createElement('span');
+                skill.className = 'skill-tag';
+                skill.innerHTML = `${input.value}<button class="remove-skill" onclick="removeSkill(this)">×</button>`;
+                skillsList.appendChild(skill);
+                input.value = '';
+            }
+        }
+
+        function removeSkill(button) {
+            button.parentElement.remove();
+        }
+
+        // Get all skills
+        function getAllSkills() {
+            const skills = [];
+            document.querySelectorAll('.skill-tag').forEach(tag => {
+                skills.push(tag.textContent.replace('×', '').trim());
+            });
+            return skills;
+        }
+
+        // Publish job
+        async function publishJob() {
+            try {
+                const jobData = {
+                    companyName: document.getElementById('companyName').value,
+                    companySize: document.getElementById('companySize').value,
+                    companyIndustry: document.getElementById('companyIndustry').value,
+                    companyLocation: document.getElementById('companyLocation').value,
+                    jobTitle: document.getElementById('jobTitle').value,
+                    minExperience: document.getElementById('minExperience').value,
+                    maxExperience: document.getElementById('maxExperience').value,
+                    jobDescription: document.getElementById('jobDescription').value,
+                    skills: getAllSkills(),
+                    problemStatement: document.getElementById('problemStatement').value,
+                    contextDetails: document.getElementById('contextDetails').value,
+                    caseStudy: document.getElementById('caseStudyPreview').innerHTML,
+                    createdBy: auth.currentUser.uid
+                };
+
+                await JobService.createJob(jobData);
+                alert('Job posted successfully!');
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                console.error('Error posting job:', error);
+                alert('Error posting job. Please try again.');
+            }
+        }
+
+        // Generate case study
+        async function generateCaseStudy() {
+            const preview = document.getElementById('caseStudyPreview');
+            preview.innerHTML = '<div class="loading">Generating case study...</div>';
+            
+            const problemStatement = document.getElementById('problemStatement').value;
+            const context = document.getElementById('contextDetails').value;
+
+            try {
+                // Here you would typically call an AI service
+                // For now, we'll use a mock response
+                preview.innerHTML = `
+                    <div class="case-study">
+                        <h4>Business Case</h4>
+                        <p>${problemStatement}</p>
+                        <h4>Context</h4>
+                        <p>${context}</p>
+                        <h4>Questions for Candidates</h4>
+                        <ol>
+                            <li>How would you approach solving this problem?</li>
+                            <li>What potential challenges do you foresee?</li>
+                            <li>How would you measure the success of your solution?</li>
+                        </ol>
+                    </div>
+                `;
+            } catch (error) {
+                preview.innerHTML = '<div class="error">Error generating case study. Please try again.</div>';
+            }
+        }
+    </script>
+</body>
+</html> 

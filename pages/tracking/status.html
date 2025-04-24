@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Status - A4Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="logo">A4Hub</div>
+            <div class="nav-links">
+                <a href="#applications">Applications</a>
+                <a href="#feedback">Feedback</a>
+                <a href="#profile">Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="tracking-page">
+        <section class="tracking-header">
+            <h1>Application Tracking</h1>
+            <p class="tracking-subtitle">Monitor your applications and receive feedback</p>
+        </section>
+
+        <section class="applications-overview">
+            <div class="status-cards">
+                <div class="status-card">
+                    <h3>Total Applications</h3>
+                    <p class="status-number">8</p>
+                </div>
+                <div class="status-card">
+                    <h3>Under Review</h3>
+                    <p class="status-number">3</p>
+                </div>
+                <div class="status-card">
+                    <h3>Interviews</h3>
+                    <p class="status-number">2</p>
+                </div>
+                <div class="status-card">
+                    <h3>Feedback Received</h3>
+                    <p class="status-number">5</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="application-list">
+            <h2>Your Applications</h2>
+            
+            <div class="application-filters">
+                <button class="filter-button active">All</button>
+                <button class="filter-button">In Progress</button>
+                <button class="filter-button">Completed</button>
+                <button class="filter-button">Archived</button>
+            </div>
+
+            <div class="applications">
+                <div class="application-card">
+                    <div class="application-header">
+                        <h3>Senior Frontend Developer</h3>
+                        <span class="company">TechCorp Inc.</span>
+                    </div>
+                    <div class="application-timeline">
+                        <div class="timeline-step completed">
+                            <div class="step-icon">📝</div>
+                            <p>Applied</p>
+                            <small>Aug 15, 2023</small>
+                        </div>
+                        <div class="timeline-step completed">
+                            <div class="step-icon">👁️</div>
+                            <p>Viewed</p>
+                            <small>Aug 16, 2023</small>
+                        </div>
+                        <div class="timeline-step active">
+                            <div class="step-icon">🎯</div>
+                            <p>Interview</p>
+                            <small>Scheduled</small>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="step-icon">🎉</div>
+                            <p>Decision</p>
+                            <small>Pending</small>
+                        </div>
+                    </div>
+                    <div class="application-actions">
+                        <button class="button-secondary">View Details</button>
+                        <button class="button-outline">Withdraw</button>
+                    </div>
+                </div>
+
+                <div class="application-card">
+                    <div class="application-header">
+                        <h3>Full Stack Developer</h3>
+                        <span class="company">StartupX</span>
+                    </div>
+                    <div class="application-timeline">
+                        <div class="timeline-step completed">
+                            <div class="step-icon">📝</div>
+                            <p>Applied</p>
+                            <small>Aug 10, 2023</small>
+                        </div>
+                        <div class="timeline-step completed">
+                            <div class="step-icon">👁️</div>
+                            <p>Viewed</p>
+                            <small>Aug 12, 2023</small>
+                        </div>
+                        <div class="timeline-step completed">
+                            <div class="step-icon">🎯</div>
+                            <p>Interview</p>
+                            <small>Completed</small>
+                        </div>
+                        <div class="timeline-step rejected">
+                            <div class="step-icon">❌</div>
+                            <p>Not Selected</p>
+                            <small>Aug 20, 2023</small>
+                        </div>
+                    </div>
+                    <div class="application-feedback">
+                        <h4>Feedback Available</h4>
+                        <button class="button-secondary">View Feedback</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="feedback-inbox" id="feedback">
+            <h2>Feedback Inbox</h2>
+            <div class="feedback-list">
+                <div class="feedback-card unread">
+                    <div class="feedback-header">
+                        <h3>Interview Feedback</h3>
+                        <span class="feedback-date">Aug 20, 2023</span>
+                    </div>
+                    <p class="feedback-preview">Thank you for interviewing with us. We were impressed with your technical skills, particularly in...</p>
+                    <button class="button-secondary">Read More</button>
+                </div>
+
+                <div class="feedback-card">
+                    <div class="feedback-header">
+                        <h3>Case Study Evaluation</h3>
+                        <span class="feedback-date">Aug 18, 2023</span>
+                    </div>
+                    <p class="feedback-preview">Your solution to the frontend architecture challenge demonstrated strong understanding of...</p>
+                    <button class="button-secondary">Read More</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Feedback Modal -->
+    <div class="modal" id="feedbackModal">
+        <div class="modal-content">
+            <h2>Detailed Feedback</h2>
+            <div class="feedback-content">
+                <h3>Interview Performance</h3>
+                <div class="feedback-section">
+                    <h4>Technical Skills</h4>
+                    <p>Strong understanding of frontend technologies and architecture patterns...</p>
+                </div>
+                <div class="feedback-section">
+                    <h4>Areas for Improvement</h4>
+                    <p>Consider deepening knowledge in system design and scalability...</p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="button-outline" onclick="closeFeedbackModal()">Close</button>
+                <button class="button-secondary">Save for Later</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/main.js"></script>
+    <script src="../../js/animations.js"></script>
+</body>
+</html> 

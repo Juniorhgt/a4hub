@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Listings - A4Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">A4Hub</a>
+            <div class="nav-links">
+                <a href="profile.html">My Profile</a>
+                <a href="applications.html">My Applications</a>
+                <a href="#" id="logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="jobs-container">
+        <div class="jobs-header">
+            <h1>Available Jobs</h1>
+            <div class="search-filters">
+                <input type="text" id="searchInput" placeholder="Search jobs...">
+                <select id="industryFilter">
+                    <option value="">All Industries</option>
+                    <option value="technology">Technology</option>
+                    <option value="finance">Finance</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="retail">Retail</option>
+                </select>
+                <select id="experienceFilter">
+                    <option value="">All Experience Levels</option>
+                    <option value="0-2">0-2 years</option>
+                    <option value="2-5">2-5 years</option>
+                    <option value="5-10">5-10 years</option>
+                    <option value="10+">10+ years</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="jobs-grid" id="jobsContainer">
+            <!-- Jobs will be loaded here -->
+        </div>
+    </main>
+
+    <!-- Job Details Modal -->
+    <div class="modal" id="jobDetailsModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="jobDetailsContent"></div>
+        </div>
+    </div>
+
+    <!-- Application Modal -->
+    <div class="modal" id="applyModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="applyContent"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { JobService } from '../js/services.js';
+        import { auth } from '../js/firebase-config.js';
+
+        // Check authentication
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'auth.html';
+                return;
+            }
+        });
+
+        // Fetch and display jobs
+        async function loadJobs() {
+            try {
+                const jobs = await JobService.getActiveJobs();
+                const jobsContainer = document.getElementById('jobsContainer');
+                
+                if (jobs.length === 0) {
+                    jobsContainer.innerHTML = '<p class="no-jobs">No jobs available at the moment.</p>';
+                    return;
+                }
+
+                jobsContainer.innerHTML = jobs.map(job => `
+                    <div class="job-card">
+                        <div class="job-header">
+                            <h3>${job.jobTitle}</h3>
+                            <span class="company-name">${job.companyName}</span>
+                        </div>
+                        <div class="job-details">
+                            <p><strong>Location:</strong> ${job.companyLocation}</p>
+                            <p><strong>Experience:</strong> ${job.minExperience} - ${job.maxExperience} years</p>
+                            <p><strong>Industry:</strong> ${job.companyIndustry}</p>
+                        </div>
+                        <div class="job-description">
+                            <p>${job.jobDescription.substring(0, 200)}...</p>
+                        </div>
+                        <div class="job-skills">
+                            ${job.skills.slice(0, 5).map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                            ${job.skills.length > 5 ? `<span class="skill-tag">+${job.skills.length - 5} more</span>` : ''}
+                        </div>
+                        <div class="job-actions">
+                            <button onclick="viewJobDetails('${job.id}')" class="btn btn-primary">View Details</button>
+                            <button onclick="applyForJob('${job.id}')" class="btn btn-secondary">Apply Now</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+                document.getElementById('jobsContainer').innerHTML = '<p class="error">Error loading jobs. Please try again later.</p>';
+            }
+        }
+
+        // View job details
+        async function viewJobDetails(jobId) {
+            try {
+                const job = await JobService.getJobById(jobId);
+                const modal = document.getElementById('jobDetailsModal');
+                const modalContent = document.getElementById('jobDetailsContent');
+                
+                modalContent.innerHTML = `
+                    <h2>${job.jobTitle}</h2>
+                    <h3>${job.companyName}</h3>
+                    <div class="job-details">
+                        <p><strong>Location:</strong> ${job.companyLocation}</p>
+                        <p><strong>Experience:</strong> ${job.minExperience} - ${job.maxExperience} years</p>
+                        <p><strong>Industry:</strong> ${job.companyIndustry}</p>
+                        <p><strong>Company Size:</strong> ${job.companySize}</p>
+                    </div>
+                    <div class="job-description">
+                        <h4>Job Description</h4>
+                        <p>${job.jobDescription}</p>
+                    </div>
+                    <div class="job-skills">
+                        <h4>Required Skills</h4>
+                        ${job.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    </div>
+                    <div class="case-study">
+                        <h4>Business Case</h4>
+                        ${job.caseStudy}
+                    </div>
+                    <div class="modal-actions">
+                        <button onclick="applyForJob('${job.id}')" class="btn btn-primary">Apply Now</button>
+                        <button onclick="closeModal()" class="btn btn-secondary">Close</button>
+                    </div>
+                `;
+                
+                modal.style.display = 'block';
+            } catch (error) {
+                console.error('Error loading job details:', error);
+                alert('Error loading job details. Please try again.');
+            }
+        }
+
+        // Apply for job
+        async function applyForJob(jobId) {
+            try {
+                const job = await JobService.getJobById(jobId);
+                const modal = document.getElementById('applyModal');
+                const modalContent = document.getElementById('applyContent');
+                
+                modalContent.innerHTML = `
+                    <h2>Apply for ${job.jobTitle}</h2>
+                    <form id="applicationForm" onsubmit="submitApplication(event, '${jobId}')">
+                        <div class="form-group">
+                            <label for="coverLetter">Cover Letter</label>
+                            <textarea id="coverLetter" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="resume">Resume (PDF)</label>
+                            <input type="file" id="resume" accept=".pdf" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="videoIntro">Video Introduction (Optional)</label>
+                            <input type="file" id="videoIntro" accept="video/*">
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Submit Application</button>
+                            <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </form>
+                `;
+                
+                modal.style.display = 'block';
+            } catch (error) {
+                console.error('Error preparing application:', error);
+                alert('Error preparing application. Please try again.');
+            }
+        }
+
+        // Submit application
+        async function submitApplication(event, jobId) {
+            event.preventDefault();
+            
+            try {
+                const formData = new FormData();
+                formData.append('coverLetter', document.getElementById('coverLetter').value);
+                formData.append('resume', document.getElementById('resume').files[0]);
+                
+                const videoIntro = document.getElementById('videoIntro').files[0];
+                if (videoIntro) {
+                    formData.append('videoIntro', videoIntro);
+                }
+                
+                // Here you would typically upload the files to Firebase Storage
+                // and create an application record in Firestore
+                
+                alert('Application submitted successfully!');
+                closeModal();
+            } catch (error) {
+                console.error('Error submitting application:', error);
+                alert('Error submitting application. Please try again.');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('jobDetailsModal').style.display = 'none';
+            document.getElementById('applyModal').style.display = 'none';
+        }
+
+        // Load jobs when page loads
+        document.addEventListener('DOMContentLoaded', loadJobs);
+    </script>
+</body>
+</html> 

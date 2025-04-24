@@ -1,0 +1,35 @@
+{
+  "name": "a4hub",
+  "version": "1.0.0",
+  "description": "A4Hub - Job Application Platform",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "postcss css/*.css -d dist/css",
+    "build:js": "babel js -d dist/js --copy-files",
+    "start": "serve dist",
+    "dev": "concurrently \"npm run watch:css\" \"npm run watch:js\" \"npm run start\"",
+    "watch:css": "postcss css/*.css -d dist/css --watch",
+    "watch:js": "babel js -d dist/js --copy-files --watch"
+  },
+  "dependencies": {
+    "firebase": "^10.7.0",
+    "serve": "^14.2.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.22.20",
+    "autoprefixer": "^10.4.16",
+    "concurrently": "^8.2.2",
+    "postcss": "^8.4.31",
+    "postcss-cli": "^10.1.0",
+    "postcss-import": "^15.1.0",
+    "postcss-nested": "^6.0.1"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "> 1%",
+    "not dead"
+  ]
+}
