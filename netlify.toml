@@ -1,5 +1,5 @@
 [build]
-  publish = "."
+  publish = "a4hub"
 
 [build.environment]
   NODE_VERSION = "18"
