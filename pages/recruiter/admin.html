@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - A4Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="../../index.html" class="logo">A4Hub</a>
+            <div class="nav-links">
+                <a href="dashboard.html">Post New Job</a>
+                <a href="admin.html" class="active">My Jobs</a>
+                <a href="candidates.html">Candidates</a>
+                <a href="#settings">Settings</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="admin-panel">
+        <h1>My Posted Jobs</h1>
+        
+        <div class="job-filters">
+            <select id="statusFilter" onchange="filterJobs()">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="closed">Closed</option>
+            </select>
+            <input type="text" id="searchInput" placeholder="Search jobs..." onkeyup="filterJobs()">
+        </div>
+
+        <div class="jobs-list" id="jobsList">
+            <!-- Jobs will be loaded here -->
+            <div class="loading">Loading your jobs...</div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { JobService } from '../../js/services.js';
+        import { auth } from '../../js/firebase-config.js';
+
+        // Check authentication
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = '../../pages/auth.html';
+                return;
+            }
+            // Load jobs for the current user
+            loadJobs(user.uid);
+        });
+
+        async function loadJobs(userId) {
+            try {
+                const jobs = await JobService.getJobsByUser(userId);
+                displayJobs(jobs);
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+                document.getElementById('jobsList').innerHTML = '<div class="error">Error loading jobs. Please try again.</div>';
+            }
+        }
+
+        function displayJobs(jobs) {
+            const jobsList = document.getElementById('jobsList');
+            if (jobs.length === 0) {
+                jobsList.innerHTML = '<div class="no-jobs">No jobs posted yet. <a href="dashboard.html">Post your first job</a></div>';
+                return;
+            }
+
+            jobsList.innerHTML = jobs.map(job => `
+                <div class="job-card" data-status="${job.status}">
+                    <div class="job-header">
+                        <h3>${job.jobTitle}</h3>
+                        <span class="status-badge ${job.status}">${job.status}</span>
+                    </div>
+                    <div class="job-details">
+                        <p><strong>Company:</strong> ${job.companyName}</p>
+                        <p><strong>Location:</strong> ${job.companyLocation}</p>
+                        <p><strong>Posted:</strong> ${new Date(job.createdAt).toLocaleDateString()}</p>
+                        <p><strong>Applications:</strong> ${job.applications?.length || 0}</p>
+                    </div>
+                    <div class="job-actions">
+                        <button class="button-secondary" onclick="viewJob('${job.id}')">View Details</button>
+                        <button class="button-secondary" onclick="viewApplications('${job.id}')">View Applications</button>
+                        <button class="button-outline" onclick="editJob('${job.id}')">Edit</button>
+                        <button class="button-danger" onclick="closeJob('${job.id}')">Close Job</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterJobs() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const jobCards = document.querySelectorAll('.job-card');
+
+            jobCards.forEach(card => {
+                const status = card.getAttribute('data-status');
+                const jobTitle = card.querySelector('h3').textContent.toLowerCase();
+                const companyName = card.querySelector('.job-details p:first-child').textContent.toLowerCase();
+
+                const statusMatch = statusFilter === 'all' || status === statusFilter;
+                const searchMatch = jobTitle.includes(searchInput) || companyName.includes(searchInput);
+
+                card.style.display = statusMatch && searchMatch ? 'block' : 'none';
+            });
+        }
+
+        window.viewJob = async function(jobId) {
+            // Implement view job details
+            window.location.href = `job-details.html?id=${jobId}`;
+        };
+
+        window.viewApplications = async function(jobId) {
+            // Implement view applications
+            window.location.href = `applications.html?jobId=${jobId}`;
+        };
+
+        window.editJob = async function(jobId) {
+            // Implement edit job
+            window.location.href = `edit-job.html?id=${jobId}`;
+        };
+
+        window.closeJob = async function(jobId) {
+            if (confirm('Are you sure you want to close this job posting? This action cannot be undone.')) {
+                try {
+                    await JobService.updateJobStatus(jobId, 'closed');
+                    loadJobs(auth.currentUser.uid);
+                } catch (error) {
+                    console.error('Error closing job:', error);
+                    alert('Error closing job. Please try again.');
+                }
+            }
+        };
+    </script>
+</body>
+</html> 

@@ -13,8 +13,9 @@
         <div class="nav-container">
             <a href="../../index.html" class="logo">A4Hub</a>
             <div class="nav-links">
-                <a href="#jobs">Active Jobs</a>
-                <a href="#candidates">Candidates</a>
+                <a href="dashboard.html">Post New Job</a>
+                <a href="admin.html">My Jobs</a>
+                <a href="candidates.html">Candidates</a>
                 <a href="#settings">Settings</a>
             </div>
         </div>
@@ -146,6 +147,15 @@
                     <textarea id="contextDetails" rows="4" 
                         placeholder="Provide any additional context or constraints that would help frame the business case..."></textarea>
                 </div>
+                <div class="form-group">
+                    <label for="caseStudyType">Case Study Type</label>
+                    <select id="caseStudyType" required>
+                        <option value="">Select case study type</option>
+                        <option value="technical">Technical</option>
+                        <option value="business">Business</option>
+                        <option value="problemSolving">Problem Solving</option>
+                    </select>
+                </div>
                 <div class="ai-preview">
                     <h3>AI-Generated Case Study Preview</h3>
                     <div class="preview-container" id="caseStudyPreview">
@@ -260,32 +270,126 @@
 
         // Generate case study
         async function generateCaseStudy() {
-            const preview = document.getElementById('caseStudyPreview');
-            preview.innerHTML = '<div class="loading">Generating case study...</div>';
-            
             const problemStatement = document.getElementById('problemStatement').value;
-            const context = document.getElementById('contextDetails').value;
+            const contextDetails = document.getElementById('contextDetails').value;
+            const caseStudyType = document.getElementById('caseStudyType').value;
+            
+            // Show loading state
+            const caseStudyResult = document.getElementById('caseStudyResult');
+            caseStudyResult.innerHTML = '<div class="loading">Generating case study...</div>';
+            
+            // Predefined templates for different case study types
+            const templates = {
+                technical: {
+                    solution: "Analyze the technical requirements and propose a scalable solution. Consider system architecture, data flow, and potential bottlenecks.",
+                    evaluation: [
+                        "Technical feasibility of the proposed solution",
+                        "Scalability and performance considerations",
+                        "Security implications and measures",
+                        "Implementation complexity and timeline",
+                        "Cost-effectiveness of the solution"
+                    ],
+                    questions: [
+                        "What technologies would you choose for this solution and why?",
+                        "How would you handle potential scalability issues?",
+                        "What security measures would you implement?",
+                        "How would you test the solution?",
+                        "What would be your deployment strategy?"
+                    ],
+                    timeLimit: "60 minutes"
+                },
+                business: {
+                    solution: "Develop a comprehensive business strategy considering market analysis, resource allocation, and risk management.",
+                    evaluation: [
+                        "Market analysis and opportunity assessment",
+                        "Resource allocation and budget planning",
+                        "Risk assessment and mitigation strategies",
+                        "Implementation timeline and milestones",
+                        "ROI and business impact analysis"
+                    ],
+                    questions: [
+                        "How would you analyze the target market?",
+                        "What would be your go-to-market strategy?",
+                        "How would you allocate resources and budget?",
+                        "What risks do you foresee and how would you mitigate them?",
+                        "How would you measure success?"
+                    ],
+                    timeLimit: "45 minutes"
+                },
+                problemSolving: {
+                    solution: "Propose a systematic approach to solve the given problem, considering all stakeholders and potential impacts.",
+                    evaluation: [
+                        "Problem analysis and understanding",
+                        "Solution creativity and innovation",
+                        "Implementation feasibility",
+                        "Stakeholder impact assessment",
+                        "Long-term sustainability"
+                    ],
+                    questions: [
+                        "How would you break down this problem?",
+                        "What alternative solutions would you consider?",
+                        "How would you involve stakeholders in the solution?",
+                        "What metrics would you use to measure success?",
+                        "How would you ensure long-term sustainability?"
+                    ],
+                    timeLimit: "50 minutes"
+                }
+            };
 
-            try {
-                // Here you would typically call an AI service
-                // For now, we'll use a mock response
-                preview.innerHTML = `
-                    <div class="case-study">
-                        <h4>Business Case</h4>
-                        <p>${problemStatement}</p>
-                        <h4>Context</h4>
-                        <p>${context}</p>
-                        <h4>Questions for Candidates</h4>
-                        <ol>
-                            <li>How would you approach solving this problem?</li>
-                            <li>What potential challenges do you foresee?</li>
-                            <li>How would you measure the success of your solution?</li>
-                        </ol>
+            // Get the selected template
+            const template = templates[caseStudyType] || templates.technical;
+            
+            // Simulate AI generation with template
+            setTimeout(() => {
+                const mockResponse = {
+                    problem: problemStatement,
+                    context: contextDetails,
+                    type: caseStudyType,
+                    solution: template.solution,
+                    evaluation: template.evaluation,
+                    questions: template.questions,
+                    timeLimit: template.timeLimit
+                };
+                
+                // Display the enhanced case study
+                caseStudyResult.innerHTML = `
+                    <div class="case-study-result">
+                        <h3>Generated Case Study</h3>
+                        <div class="case-study-type">
+                            <h4>Type</h4>
+                            <p>${mockResponse.type.charAt(0).toUpperCase() + mockResponse.type.slice(1)}</p>
+                        </div>
+                        <div class="problem">
+                            <h4>Problem Statement</h4>
+                            <p>${mockResponse.problem}</p>
+                        </div>
+                        <div class="context">
+                            <h4>Context</h4>
+                            <p>${mockResponse.context}</p>
+                        </div>
+                        <div class="solution">
+                            <h4>Solution Approach</h4>
+                            <p>${mockResponse.solution}</p>
+                        </div>
+                        <div class="evaluation">
+                            <h4>Evaluation Criteria</h4>
+                            <ul>
+                                ${mockResponse.evaluation.map(criterion => `<li>${criterion}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="questions">
+                            <h4>Key Questions to Consider</h4>
+                            <ol>
+                                ${mockResponse.questions.map(question => `<li>${question}</li>`).join('')}
+                            </ol>
+                        </div>
+                        <div class="time-limit">
+                            <h4>Time Limit</h4>
+                            <p>${mockResponse.timeLimit}</p>
+                        </div>
                     </div>
                 `;
-            } catch (error) {
-                preview.innerHTML = '<div class="error">Error generating case study. Please try again.</div>';
-            }
+            }, 2000);
         }
     </script>
 </body>
