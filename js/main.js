@@ -37,19 +37,8 @@ function initPageTransitions() {
     });
 }
 
-// Temporary bypass for development
+// Initialize site
 document.addEventListener('DOMContentLoaded', () => {
-    // Skip authentication check
-    console.log('Site loaded - authentication bypassed for development');
-    
-    // Initialize any other necessary functionality
-    initializeSite();
-});
-
-function initializeSite() {
-    // Your site initialization code here
-    console.log('Site initialized');
-    
     // Initialize page transitions
     initPageTransitions();
     
@@ -72,20 +61,7 @@ function initializeSite() {
         card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
         observer.observe(card);
     });
-
-    // CV Animation on hover
-    const cvAnimation = document.getElementById('cvAnimation');
-    if (cvAnimation) {
-        cvAnimation.addEventListener('mouseenter', () => {
-            cvAnimation.style.animation = 'burn 1.5s ease-out forwards';
-        });
-
-        cvAnimation.addEventListener('mouseleave', () => {
-            cvAnimation.style.animation = 'none';
-            void cvAnimation.offsetWidth; // Trigger reflow
-        });
-    }
-}
+});
 
 // Navbar scroll effect
 let lastScroll = 0;

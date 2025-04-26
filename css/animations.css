@@ -13,12 +13,13 @@
 /* CV Burning Animation */
 @keyframes burn {
     0% {
-        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-        opacity: 1;
+        background: #f5f5f5;
+    }
+    50% {
+        background: #ff6b6b;
     }
     100% {
-        clip-path: polygon(50% 0, 50% 0, 50% 100%, 50% 100%);
-        opacity: 0;
+        background: #f5f5f5;
     }
 }
 
@@ -131,4 +132,16 @@ html {
 .animation-container:hover::before {
     opacity: 1;
     animation: burn 1.5s ease-out forwards;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+#cvAnimation {
+    position: relative;
+    overflow: hidden;
 } 
