@@ -4,16 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A4Hub - Modern Recruitment Platform</title>
+    <link rel="icon" type="image/png" href="images/For Web/favicon.png">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .beta-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #f8f9fa;
+            color: #6c757d;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            border-bottom: 1px solid #dee2e6;
+            z-index: 1000;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo img {
+            height: 40px;
+            width: auto;
+        }
+    </style>
 </head>
 <body>
+    <div class="beta-banner">
+        Beta version — A4Hub is being quietly built in the background.
+    </div>
     <nav class="main-nav">
         <div class="nav-container">
-            <div class="logo">A4Hub</div>
+            <div class="logo">
+                <img src="images/logo.png" alt="A4Hub Logo">
+                <span>A4Hub</span>
+            </div>
             <div class="nav-links">
                 <a href="#about">About</a>
                 <a href="#features">Features</a>
