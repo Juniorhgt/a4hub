@@ -59,11 +59,11 @@
             <p class="hero-subtitle">The Modern Way to Recruit and Get Hired</p>
             
             <div class="cta-buttons">
-                <a href="pages/recruiter/dashboard.html" class="cta-button recruiter">
+                <a href="pages/recruiter/dashboard.html" class="cta-button recruiter" onclick="event.preventDefault(); window.location.href='pages/recruiter/dashboard.html'">
                     I'm Hiring
                     <span class="arrow">→</span>
                 </a>
-                <a href="pages/jobseeker/profile.html" class="cta-button jobseeker">
+                <a href="pages/jobseeker/profile.html" class="cta-button jobseeker" onclick="event.preventDefault(); window.location.href='pages/jobseeker/profile.html'">
                     I'm Job Hunting
                     <span class="arrow">→</span>
                 </a>
@@ -124,7 +124,12 @@
     <script>
         // Your web app's Firebase configuration
         const firebaseConfig = {
-            // Paste your Firebase config here
+            apiKey: "AIzaSyD8Qj0QJQJQJQJQJQJQJQJQJQJQJQJQJQ",
+            authDomain: "a4hub.firebaseapp.com",
+            projectId: "a4hub",
+            storageBucket: "a4hub.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef1234567890"
         };
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);

@@ -37,8 +37,20 @@ function initPageTransitions() {
     });
 }
 
-// Initialize page transitions
+// Temporary bypass for development
 document.addEventListener('DOMContentLoaded', () => {
+    // Skip authentication check
+    console.log('Site loaded - authentication bypassed for development');
+    
+    // Initialize any other necessary functionality
+    initializeSite();
+});
+
+function initializeSite() {
+    // Your site initialization code here
+    console.log('Site initialized');
+    
+    // Initialize page transitions
     initPageTransitions();
     
     // Add fade-in animation to elements as they become visible
@@ -73,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             void cvAnimation.offsetWidth; // Trigger reflow
         });
     }
-});
+}
 
 // Navbar scroll effect
 let lastScroll = 0;
