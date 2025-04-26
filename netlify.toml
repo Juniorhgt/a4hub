@@ -28,4 +28,9 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Content-Security-Policy = "default-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.google.com https://*.gstatic.com https://*.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.firebaseio.com https://*.googleapis.com https://*.google.com https://*.gstatic.com https://*.cloudflare.com; style-src 'self' 'unsafe-inline' https://*.googleapis.com https://*.cloudflare.com; img-src 'self' data: https://*.firebaseio.com https://*.googleapis.com https://*.google.com https://*.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.google.com https://*.gstatic.com;"
-    Permissions-Policy = "camera=(), microphone=()" 
+    Permissions-Policy = "camera=(), microphone=()"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Content-Type = "application/javascript" 
