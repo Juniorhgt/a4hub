@@ -3,136 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - A4Hub</title>
+    <title>Admin Dashboard - A4Hub</title>
+    <link rel="icon" type="image/png" href="../../images/For Web/favicon.png">
     <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="../../css/animations.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .admin-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+        .sidebar {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-right: 1px solid #dee2e6;
+        }
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar-menu li {
+            margin-bottom: 1rem;
+        }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        .sidebar-menu a:hover {
+            background: #e9ecef;
+        }
+        .sidebar-menu a.active {
+            background: #4CAF50;
+            color: white;
+        }
+        .main-content {
+            padding: 2rem;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .new-job-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .job-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .job-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .job-card h3 {
+            margin: 0 0 0.5rem 0;
+            color: #212529;
+        }
+        .job-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        .applications-count {
+            background: #e9ecef;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+        }
+        .job-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .job-actions button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        .view-applications {
+            background: #4CAF50;
+            color: white;
+        }
+        .edit-job {
+            background: #6c757d;
+            color: white;
+        }
+        .close-job {
+            background: #dc3545;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <nav class="main-nav">
-        <div class="nav-container">
-            <a href="../../index.html" class="logo">A4Hub</a>
-            <div class="nav-links">
-                <a href="dashboard.html">Post New Job</a>
-                <a href="admin.html" class="active">My Jobs</a>
-                <a href="candidates.html">Candidates</a>
-                <a href="#settings">Settings</a>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <img src="../../images/logo.png" alt="A4Hub Logo">
+                <span>A4Hub</span>
             </div>
-        </div>
-    </nav>
-
-    <main class="admin-panel">
-        <h1>My Posted Jobs</h1>
-        
-        <div class="job-filters">
-            <select id="statusFilter" onchange="filterJobs()">
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="closed">Closed</option>
-            </select>
-            <input type="text" id="searchInput" placeholder="Search jobs..." onkeyup="filterJobs()">
-        </div>
-
-        <div class="jobs-list" id="jobsList">
-            <!-- Jobs will be loaded here -->
-            <div class="loading">Loading your jobs...</div>
-        </div>
-    </main>
+            <nav>
+                <ul class="sidebar-menu">
+                    <li><a href="#" class="active">My Jobs</a></li>
+                    <li><a href="#">Applications</a></li>
+                    <li><a href="#">Company Profile</a></li>
+                    <li><a href="#">Settings</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1>My Job Posts</h1>
+                <button class="new-job-button" onclick="window.location.href='dashboard.html'">
+                    <span>+</span> Post New Job
+                </button>
+            </div>
+            <div class="job-cards" id="jobCards">
+                <!-- Job cards will be dynamically loaded here -->
+            </div>
+        </main>
+    </div>
 
     <script type="module">
-        import { JobService } from '../../js/services.js';
-        import { auth } from '../../js/firebase-config.js';
+        import { authService } from '../../js/services/auth-service.js';
+        import { db } from '../../js/firebase-config.js';
+        import { collection, query, where, getDocs } from 'firebase/firestore';
 
-        // Check authentication
-        auth.onAuthStateChanged(async (user) => {
+        // Check if user is authenticated
+        authService.auth.onAuthStateChanged(async (user) => {
             if (!user) {
-                window.location.href = '../../pages/auth.html';
-                return;
-            }
-            // Load jobs for the current user
-            loadJobs(user.uid);
-        });
-
-        async function loadJobs(userId) {
-            try {
-                const jobs = await JobService.getJobsByUser(userId);
-                displayJobs(jobs);
-            } catch (error) {
-                console.error('Error loading jobs:', error);
-                document.getElementById('jobsList').innerHTML = '<div class="error">Error loading jobs. Please try again.</div>';
-            }
-        }
-
-        function displayJobs(jobs) {
-            const jobsList = document.getElementById('jobsList');
-            if (jobs.length === 0) {
-                jobsList.innerHTML = '<div class="no-jobs">No jobs posted yet. <a href="dashboard.html">Post your first job</a></div>';
+                window.location.href = '../../index.html';
                 return;
             }
 
-            jobsList.innerHTML = jobs.map(job => `
-                <div class="job-card" data-status="${job.status}">
-                    <div class="job-header">
-                        <h3>${job.jobTitle}</h3>
-                        <span class="status-badge ${job.status}">${job.status}</span>
+            // Load user's job posts
+            const jobsQuery = query(
+                collection(db, 'jobs'),
+                where('companyId', '==', user.uid)
+            );
+
+            const querySnapshot = await getDocs(jobsQuery);
+            const jobCards = document.getElementById('jobCards');
+            
+            querySnapshot.forEach((doc) => {
+                const job = doc.data();
+                const card = document.createElement('div');
+                card.className = 'job-card';
+                card.innerHTML = `
+                    <div class="job-info">
+                        <h3>${job.title}</h3>
+                        <p>${job.companyName}</p>
+                        <p>${job.location}</p>
                     </div>
-                    <div class="job-details">
-                        <p><strong>Company:</strong> ${job.companyName}</p>
-                        <p><strong>Location:</strong> ${job.companyLocation}</p>
-                        <p><strong>Posted:</strong> ${new Date(job.createdAt).toLocaleDateString()}</p>
-                        <p><strong>Applications:</strong> ${job.applications?.length || 0}</p>
+                    <div class="job-stats">
+                        <span>${job.applications?.length || 0} Applications</span>
                     </div>
                     <div class="job-actions">
-                        <button class="button-secondary" onclick="viewJob('${job.id}')">View Details</button>
-                        <button class="button-secondary" onclick="viewApplications('${job.id}')">View Applications</button>
-                        <button class="button-outline" onclick="editJob('${job.id}')">Edit</button>
-                        <button class="button-danger" onclick="closeJob('${job.id}')">Close Job</button>
+                        <a href="applications.html?jobId=${doc.id}" class="view-applications">
+                            View Applications
+                        </a>
+                        <button class="edit-job" onclick="editJob('${doc.id}')">Edit</button>
+                        <button class="close-job" onclick="closeJob('${doc.id}')">Close</button>
                     </div>
-                </div>
-            `).join('');
-        }
-
-        function filterJobs() {
-            const statusFilter = document.getElementById('statusFilter').value;
-            const searchInput = document.getElementById('searchInput').value.toLowerCase();
-            const jobCards = document.querySelectorAll('.job-card');
-
-            jobCards.forEach(card => {
-                const status = card.getAttribute('data-status');
-                const jobTitle = card.querySelector('h3').textContent.toLowerCase();
-                const companyName = card.querySelector('.job-details p:first-child').textContent.toLowerCase();
-
-                const statusMatch = statusFilter === 'all' || status === statusFilter;
-                const searchMatch = jobTitle.includes(searchInput) || companyName.includes(searchInput);
-
-                card.style.display = statusMatch && searchMatch ? 'block' : 'none';
+                `;
+                jobCards.appendChild(card);
             });
-        }
+        });
 
-        window.viewJob = async function(jobId) {
-            // Implement view job details
-            window.location.href = `job-details.html?id=${jobId}`;
+        // Function to edit job
+        window.editJob = (jobId) => {
+            window.location.href = `edit-job.html?jobId=${jobId}`;
         };
 
-        window.viewApplications = async function(jobId) {
-            // Implement view applications
-            window.location.href = `applications.html?jobId=${jobId}`;
-        };
-
-        window.editJob = async function(jobId) {
-            // Implement edit job
-            window.location.href = `edit-job.html?id=${jobId}`;
-        };
-
-        window.closeJob = async function(jobId) {
-            if (confirm('Are you sure you want to close this job posting? This action cannot be undone.')) {
-                try {
-                    await JobService.updateJobStatus(jobId, 'closed');
-                    loadJobs(auth.currentUser.uid);
-                } catch (error) {
-                    console.error('Error closing job:', error);
-                    alert('Error closing job. Please try again.');
-                }
+        // Function to close job
+        window.closeJob = async (jobId) => {
+            if (confirm('Are you sure you want to close this job posting?')) {
+                // Implement job closing logic
+                console.log('Closing job:', jobId);
             }
         };
     </script>

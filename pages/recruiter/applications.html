@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Applications - A4Hub</title>
+    <link rel="icon" type="image/png" href="../../images/For Web/favicon.png">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .applications-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #495057;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            color: #212529;
+        }
+        .job-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .applications-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+        .application-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        .candidate-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .candidate-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #6c757d;
+        }
+        .candidate-details h3 {
+            margin: 0;
+            color: #212529;
+        }
+        .candidate-details p {
+            margin: 0.25rem 0 0 0;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        .application-date {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background: #000;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .application-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .application-actions button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        .accept-button {
+            background: #4CAF50;
+            color: white;
+        }
+        .reject-button {
+            background: #dc3545;
+            color: white;
+        }
+        .message-button {
+            background: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="applications-container">
+        <a href="admin.html" class="back-link">
+            ← Back to My Jobs
+        </a>
+        
+        <div class="job-header">
+            <h1 id="jobTitle">Loading job details...</h1>
+        </div>
+
+        <div class="applications-list" id="applicationsList">
+            <!-- Applications will be loaded here -->
+        </div>
+    </div>
+
+    <script type="module">
+        import { authService } from '../../js/services/auth-service.js';
+        import { db } from '../../js/firebase-config.js';
+        import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+
+        // Get job ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const jobId = urlParams.get('jobId');
+
+        if (!jobId) {
+            window.location.href = 'admin.html';
+            return;
+        }
+
+        // Check if user is authenticated
+        authService.auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = '../../index.html';
+                return;
+            }
+
+            // Load job details
+            const jobDoc = await getDoc(doc(db, 'jobs', jobId));
+            if (!jobDoc.exists()) {
+                window.location.href = 'admin.html';
+                return;
+            }
+
+            const job = jobDoc.data();
+            document.getElementById('jobTitle').textContent = job.title;
+
+            // Load applications
+            const applicationsQuery = query(
+                collection(db, 'applications'),
+                where('jobId', '==', jobId)
+            );
+
+            const querySnapshot = await getDocs(applicationsQuery);
+            const applicationsList = document.getElementById('applicationsList');
+            
+            querySnapshot.forEach((doc) => {
+                const application = doc.data();
+                const card = document.createElement('div');
+                card.className = 'application-card';
+                card.innerHTML = `
+                    <div class="application-header">
+                        <div class="candidate-info">
+                            <div class="candidate-avatar">
+                                ${application.candidateName.charAt(0)}
+                            </div>
+                            <div class="candidate-details">
+                                <h3>${application.candidateName}</h3>
+                                <p>${application.candidateEmail}</p>
+                            </div>
+                        </div>
+                        <div class="application-date">
+                            Applied on ${new Date(application.appliedAt).toLocaleDateString()}
+                        </div>
+                    </div>
+                    <div class="video-container">
+                        <video controls>
+                            <source src="${application.videoUrl}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div class="application-actions">
+                        <button class="accept-button" onclick="handleApplication('${doc.id}', 'accepted')">
+                            Accept
+                        </button>
+                        <button class="reject-button" onclick="handleApplication('${doc.id}', 'rejected')">
+                            Reject
+                        </button>
+                        <button class="message-button" onclick="messageCandidate('${application.candidateId}')">
+                            Message
+                        </button>
+                    </div>
+                `;
+                applicationsList.appendChild(card);
+            });
+        });
+
+        // Function to handle application status
+        window.handleApplication = async (applicationId, status) => {
+            // Implement application status update
+            console.log('Updating application:', applicationId, 'to', status);
+        };
+
+        // Function to message candidate
+        window.messageCandidate = (candidateId) => {
+            // Implement messaging functionality
+            console.log('Messaging candidate:', candidateId);
+        };
+    </script>
+</body>
+</html> 
