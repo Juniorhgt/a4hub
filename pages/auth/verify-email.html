@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - A4Hub</title>
+    <link rel="icon" type="image/png" href="../../images/For Web/favicon.png">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .verification-container {
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 2rem;
+            text-align: center;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .verification-icon {
+            font-size: 48px;
+            margin-bottom: 1rem;
+            color: #4CAF50;
+        }
+        .verification-message {
+            margin-bottom: 1.5rem;
+            color: #666;
+        }
+        .resend-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .resend-button:hover {
+            background: #45a049;
+        }
+        .error-message {
+            color: #f44336;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-container">
+        <div class="verification-icon">✓</div>
+        <h2>Email Verification</h2>
+        <p class="verification-message">
+            We've sent a verification email to your address. Please check your inbox and click the verification link to activate your account.
+        </p>
+        <button id="resendButton" class="resend-button">Resend Verification Email</button>
+        <p id="errorMessage" class="error-message"></p>
+    </div>
+
+    <script type="module">
+        import { authService } from '../../js/services/auth-service.js';
+        
+        const resendButton = document.getElementById('resendButton');
+        const errorMessage = document.getElementById('errorMessage');
+
+        resendButton.addEventListener('click', async () => {
+            try {
+                const user = authService.auth.currentUser;
+                if (user) {
+                    await authService.sendEmailVerification(user);
+                    errorMessage.textContent = 'Verification email sent!';
+                    errorMessage.style.color = '#4CAF50';
+                } else {
+                    throw new Error('No user found. Please sign in again.');
+                }
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.style.color = '#f44336';
+            }
+        });
+    </script>
+</body>
+</html> 
