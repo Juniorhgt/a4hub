@@ -9,7 +9,6 @@ class AuthService {
     async signUp(email, password, userType) {
         try {
             const userCredential = await this.auth.createUserWithEmailAndPassword(email, password);
-            await this.sendEmailVerification(userCredential.user);
             await this.updateUserProfile(userCredential.user, { userType });
             return userCredential.user;
         } catch (error) {
@@ -21,33 +20,7 @@ class AuthService {
     async signIn(email, password) {
         try {
             const userCredential = await this.auth.signInWithEmailAndPassword(email, password);
-            if (!userCredential.user.emailVerified) {
-                await this.sendEmailVerification(userCredential.user);
-                throw new Error('Please verify your email before signing in.');
-            }
             return userCredential.user;
-        } catch (error) {
-            throw this.handleAuthError(error);
-        }
-    }
-
-    // Send email verification
-    async sendEmailVerification(user) {
-        try {
-            await user.sendEmailVerification({
-                url: window.location.origin + '/pages/auth/verify-email.html'
-            });
-        } catch (error) {
-            throw this.handleAuthError(error);
-        }
-    }
-
-    // Send password reset email
-    async sendPasswordResetEmail(email) {
-        try {
-            await this.auth.sendPasswordResetEmail(email, {
-                url: window.location.origin + '/pages/auth/reset-password.html'
-            });
         } catch (error) {
             throw this.handleAuthError(error);
         }
