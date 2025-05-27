@@ -68,64 +68,66 @@ body {
 
 /* Hero Section */
 .hero-section {
-    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 6rem 2rem 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
+    padding: 4rem 2rem;
+    min-height: 100vh;
+    background: #ffffff;
 }
 
 .hero-content {
     flex: 1;
     max-width: 600px;
+    padding: 2rem;
 }
 
-h1 {
+.hero h1 {
     font-size: 3.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
 }
 
 .hero-subtitle {
-    font-size: 1.25rem;
-    color: var(--gray-medium);
+    font-size: 1.5rem;
+    color: var(--text-color);
     margin-bottom: 2rem;
+    line-height: 1.6;
 }
 
 .cta-buttons {
     display: flex;
     gap: 1rem;
+    margin-top: 2rem;
 }
 
 .cta-button {
-    display: inline-flex;
-    align-items: center;
     padding: 1rem 2rem;
-    border-radius: 0.5rem;
+    border-radius: 50px;
     font-weight: 600;
     text-decoration: none;
-    transition: transform 0.3s ease;
-}
-
-.cta-button:hover {
-    transform: translateY(-2px);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .cta-button.recruiter {
-    background-color: var(--primary-color);
+    background: var(--primary-color);
     color: white;
 }
 
 .cta-button.jobseeker {
-    background-color: var(--gray-light);
-    color: var(--text-color);
+    background: var(--secondary-color);
+    color: white;
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .arrow {
-    margin-left: 0.5rem;
     transition: transform 0.3s ease;
 }
 

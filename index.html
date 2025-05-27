@@ -42,7 +42,6 @@
     <nav class="main-nav">
         <div class="nav-container">
             <div class="logo">
-                <img src="images/logo.png" alt="A4Hub Logo">
                 <span>A4Hub</span>
             </div>
             <div class="nav-links">
@@ -59,20 +58,14 @@
             <p class="hero-subtitle">The Modern Way to Recruit and Get Hired</p>
             
             <div class="cta-buttons">
-                <a href="pages/recruiter/dashboard.html" class="cta-button recruiter" onclick="event.preventDefault(); window.location.href='pages/recruiter/dashboard.html'">
+                <a href="pages/auth/login.html" class="cta-button recruiter">
                     I'm Hiring
                     <span class="arrow">→</span>
                 </a>
-                <a href="pages/jobseeker/profile.html" class="cta-button jobseeker" onclick="event.preventDefault(); window.location.href='pages/jobseeker/profile.html'">
+                <a href="pages/auth/login.html" class="cta-button jobseeker">
                     I'm Job Hunting
                     <span class="arrow">→</span>
                 </a>
-            </div>
-        </div>
-
-        <div class="hero-animation" style="width: 50%; height: 100vh; position: relative;">
-            <div id="cvAnimation" style="width: 100%; height: 100%; position: relative; background: #f5f5f5; overflow: hidden;">
-                <!-- The CV template will be drawn here -->
             </div>
         </div>
     </main>
@@ -113,27 +106,6 @@
             </div>
         </div>
     </footer>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
-    
-    <!-- Your Firebase Config -->
-    <script>
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD8Qj0QJQJQJQJQJQJQJQJQJQJQJQJQJQ",
-            authDomain: "a4hub.firebaseapp.com",
-            projectId: "a4hub",
-            storageBucket: "a4hub.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef1234567890"
-        };
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-    </script>
 
     <!-- Your app's JavaScript -->
     <script src="js/main.js"></script>

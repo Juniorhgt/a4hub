@@ -8,40 +8,8 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Page transition effect
-function initPageTransitions() {
-    const links = document.querySelectorAll('a:not([href^="#"])');
-    const pageTransition = document.createElement('div');
-    pageTransition.className = 'page-transition';
-    document.body.appendChild(pageTransition);
-
-    links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            if (link.target !== '_blank' && !link.hasAttribute('download')) {
-                e.preventDefault();
-                const href = link.href;
-                pageTransition.classList.remove('exit');
-                
-                setTimeout(() => {
-                    window.location.href = href;
-                }, 500);
-            }
-        });
-    });
-
-    // Handle back button
-    window.addEventListener('pageshow', (e) => {
-        if (e.persisted) {
-            pageTransition.classList.add('exit');
-        }
-    });
-}
-
 // Initialize site
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize page transitions
-    initPageTransitions();
-    
     // Add fade-in animation to elements as they become visible
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
