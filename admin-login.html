@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A4Hub - Admin Login</title>
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+  <nav><a href="index.html">Home</a></nav>
+  <section class="container">
+    <h2>Admin Login</h2>
+    <form id="admin-login-form">
+      <label>Username or Email<input type="text" id="admin-username" required></label>
+      <label>Password<input type="password" id="admin-password" required></label>
+      <div class="error" id="admin-error"></div>
+      <button type="submit" class="button recruiter">Login</button>
+    </form>
+  </section>
+
+  <script type="module">
+    import { auth, db, createDefaultAdmin } from './js/firebase-config.js';
+    import { signInWithEmailAndPassword } from "firebase/auth";
+    import { doc, getDoc } from "firebase/firestore";
+
+    // Create default admin user on page load
+    createDefaultAdmin();
+
+    document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('admin-username').value;
+      const password = document.getElementById('admin-password').value;
+      const errorDiv = document.getElementById('admin-error');
+
+      try {
+        // First try to find the user by username
+        const usersRef = db.collection('users');
+        const querySnapshot = await usersRef.where('username', '==', username).get();
+        
+        let email = username; // Default to using username as email
+        
+        if (!querySnapshot.empty) {
+          // If username found, get the associated email
+          const userDoc = querySnapshot.docs[0];
+          email = userDoc.data().email;
+        }
+
+        // Try to sign in with email/password
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Check if user is admin
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userData = userDoc.data();
+
+        if (userData && userData.isAdmin) {
+          // Redirect to admin dashboard
+          window.location.href = 'admin-dashboard.html';
+        } else {
+          errorDiv.textContent = 'Access denied. Admin privileges required.';
+          errorDiv.style.display = 'block';
+        }
+      } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html> 

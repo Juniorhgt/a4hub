@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A4Hub - Company Info</title>
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+  <nav><a href="index.html">Home</a></nav>
+  <section class="container">
+    <ul class="step-nav">
+      <li class="active"><span>1</span><div>Company Info</div></li>
+      <li><span>2</span><div>Job Details</div></li>
+      <li><span>3</span><div>Case Study</div></li>
+      <li><span>4</span><div>Review</div></li>
+    </ul>
+    <h2>Tell Us About Your Company</h2>
+    <form action="recruiter-job.html" method="get">
+      <label>Company Name<input name="company-name" required></label>
+      <label>Industry<input name="industry" required></label>
+      <label>Location<input name="location" required></label>
+      <label>Company Size<select name="size">
+        <option>1-10</option>
+        <option>11-50</option>
+        <option>51-200</option>
+        <option>200+</option>
+      </select></label>
+      <button class="button recruiter" type="submit">Next</button>
+    </form>
+  </section>
+</body>
+</html> 

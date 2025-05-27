@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A4Hub - Case Study</title>
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+  <nav><a href="recruiter-job.html">Back</a></nav>
+  <section class="container">
+    <ul class="step-nav">
+      <li><span>1</span><div>Company Info</div></li>
+      <li><span>2</span><div>Job Details</div></li>
+      <li class="active"><span>3</span><div>Case Study</div></li>
+      <li><span>4</span><div>Review</div></li>
+    </ul>
+    <h2>Generate Case Study</h2>
+    <form action="recruiter-review.html" method="get">
+      <label>Describe the task<textarea name="prompt" required></textarea></label>
+      <button class="button recruiter" type="submit">Generate</button>
+    </form>
+    <div class="popup-overlay" id="popup">
+      <div class="popup">
+        <p>Tip: Involve the direct manager for best results.</p>
+        <button class="button recruiter" onclick="confirmGenerate()">Got It, Generate</button>
+      </div>
+    </div>
+  </section>
+</body>
+</html> 

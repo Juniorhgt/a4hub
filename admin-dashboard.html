@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A4Hub - Admin Dashboard</title>
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+  <nav>
+    <div class="logo">A4Hub Admin</div>
+    <button id="logout-btn" class="button">Logout</button>
+  </nav>
+  <section class="container dashboard">
+    <h2>Admin Dashboard</h2>
+    
+    <div class="admin-stats">
+      <div class="stat">
+        <h3 id="total-users">0</h3>
+        <p>Total Users</p>
+      </div>
+      <div class="stat">
+        <h3 id="total-jobs">0</h3>
+        <p>Active Jobs</p>
+      </div>
+      <div class="stat">
+        <h3 id="total-applications">0</h3>
+        <p>Applications</p>
+      </div>
+    </div>
+
+    <div class="admin-actions">
+      <h3>Quick Actions</h3>
+      <button class="button" onclick="showUserManagement()">Manage Users</button>
+      <button class="button" onclick="showJobManagement()">Manage Jobs</button>
+      <button class="button" onclick="showSettings()">Settings</button>
+    </div>
+
+    <div id="user-management" class="admin-section" style="display: none;">
+      <h3>User Management</h3>
+      <div class="search-bar">
+        <input type="text" id="user-search" placeholder="Search users...">
+      </div>
+      <div id="users-list" class="list-container"></div>
+    </div>
+
+    <div id="job-management" class="admin-section" style="display: none;">
+      <h3>Job Management</h3>
+      <div class="search-bar">
+        <input type="text" id="job-search" placeholder="Search jobs...">
+      </div>
+      <div id="jobs-list" class="list-container"></div>
+    </div>
+
+    <div id="settings" class="admin-section" style="display: none;">
+      <h3>System Settings</h3>
+      <form id="settings-form">
+        <label>Max Applications per Job
+          <input type="number" id="max-applications" min="1" value="10">
+        </label>
+        <label>Case Study Time Limit (hours)
+          <input type="number" id="case-study-time" min="1" value="24">
+        </label>
+        <button type="submit" class="button">Save Settings</button>
+      </form>
+    </div>
+  </section>
+
+  <script type="module">
+    import { auth, db } from './js/firebase-config.js';
+    import { signOut } from "firebase/auth";
+    import { collection, getDocs, query, where, updateDoc, doc } from "firebase/firestore";
+
+    // Check if user is admin
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = 'admin-login.html';
+        return;
+      }
+
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const userData = userDoc.data();
+
+      if (!userData || !userData.isAdmin) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Load dashboard data
+      loadDashboardData();
+    });
+
+    // Logout handler
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'admin-login.html';
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    });
+
+    // Load dashboard data
+    async function loadDashboardData() {
+      try {
+        // Get total users
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        document.getElementById('total-users').textContent = usersSnapshot.size;
+
+        // Get total jobs
+        const jobsSnapshot = await getDocs(collection(db, 'jobs'));
+        document.getElementById('total-jobs').textContent = jobsSnapshot.size;
+
+        // Get total applications
+        const applicationsSnapshot = await getDocs(collection(db, 'applications'));
+        document.getElementById('total-applications').textContent = applicationsSnapshot.size;
+
+        // Load users list
+        loadUsersList();
+        // Load jobs list
+        loadJobsList();
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      }
+    }
+
+    // Load users list
+    async function loadUsersList() {
+      const usersList = document.getElementById('users-list');
+      const usersSnapshot = await getDocs(collection(db, 'users'));
+      
+      usersList.innerHTML = usersSnapshot.docs.map(doc => {
+        const user = doc.data();
+        return `
+          <div class="list-item">
+            <div class="item-info">
+              <h4>${user.name || user.email}</h4>
+              <p>${user.email}</p>
+            </div>
+            <div class="item-actions">
+              <button onclick="toggleAdmin('${doc.id}', ${!user.isAdmin})" class="button small">
+                ${user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Load jobs list
+    async function loadJobsList() {
+      const jobsList = document.getElementById('jobs-list');
+      const jobsSnapshot = await getDocs(collection(db, 'jobs'));
+      
+      jobsList.innerHTML = jobsSnapshot.docs.map(doc => {
+        const job = doc.data();
+        return `
+          <div class="list-item">
+            <div class="item-info">
+              <h4>${job.title}</h4>
+              <p>${job.company.name}</p>
+            </div>
+            <div class="item-actions">
+              <button onclick="toggleJobStatus('${doc.id}', '${job.status}')" class="button small">
+                ${job.status === 'active' ? 'Deactivate' : 'Activate'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Toggle admin status
+    window.toggleAdmin = async (userId, makeAdmin) => {
+      try {
+        await updateDoc(doc(db, 'users', userId), {
+          isAdmin: makeAdmin
+        });
+        loadUsersList();
+      } catch (error) {
+        console.error('Error updating admin status:', error);
+      }
+    };
+
+    // Toggle job status
+    window.toggleJobStatus = async (jobId, currentStatus) => {
+      try {
+        await updateDoc(doc(db, 'jobs', jobId), {
+          status: currentStatus === 'active' ? 'inactive' : 'active'
+        });
+        loadJobsList();
+      } catch (error) {
+        console.error('Error updating job status:', error);
+      }
+    };
+
+    // Show different sections
+    window.showUserManagement = () => {
+      document.querySelectorAll('.admin-section').forEach(section => section.style.display = 'none');
+      document.getElementById('user-management').style.display = 'block';
+    };
+
+    window.showJobManagement = () => {
+      document.querySelectorAll('.admin-section').forEach(section => section.style.display = 'none');
+      document.getElementById('job-management').style.display = 'block';
+    };
+
+    window.showSettings = () => {
+      document.querySelectorAll('.admin-section').forEach(section => section.style.display = 'none');
+      document.getElementById('settings').style.display = 'block';
+    };
+  </script>
+</body>
+</html> 
