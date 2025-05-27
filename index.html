@@ -1,11 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>A4Hub - You Are More Than a CV</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-storage-compat.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #f9fafb; color: #111; }
+        .hero {
+            min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; text-align: center; padding: 2rem; background: linear-gradient(to right, #ffffff, #f0f0f0);
+        }
+        .logo { font-size: 2.5rem; font-weight: 700; color: #222; margin-bottom: 1rem; }
+        .subtitle { font-size: 1.25rem; margin-bottom: 2rem; color: #555; }
+        .actions { display: flex; gap: 2rem; flex-wrap: wrap; }
+        .button {
+            padding: 1rem 2rem; border: none; border-radius: 2rem; font-size: 1rem; cursor: pointer;
+            transition: transform 0.2s ease; font-weight: 600;
+        }
+        .button:hover { transform: scale(1.05); }
+        .jobseeker { background: #4f46e5; color: white; }
+        .recruiter { background: #f97316; color: white; }
+        .beta-tag {
+            position: absolute; top: 1rem; right: 1rem; background: #ffe08a;
+            padding: 0.5rem 1rem; border-radius: 1rem; font-size: 0.85rem; font-weight: 600; color: #7a5200;
+        }
+        .dashboard {
+            padding: 4rem 2rem; max-width: 1000px; margin: auto;
+        }
+        .dashboard h2 { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
+        .dashboard .section { margin-bottom: 2rem; }
+        .section-title {
+            font-weight: 600; font-size: 1.25rem; margin-bottom: 1rem; color: #333;
+        }
+        .card {
+            background: white; border-radius: 1rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem; margin-bottom: 1rem; position: relative;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-reviewing { background: #dbeafe; color: #1e40af; }
+        .status-completed { background: #dcfce7; color: #166534; }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            color: #666;
+        }
+        .loading.active {
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <div class="hero">
@@ -22,40 +101,106 @@
         <h2>Recruiter Dashboard</h2>
         <div class="section">
             <div class="section-title">Post a Job</div>
-            <div class="card">[Button Placeholder]</div>
+            <div class="card">
+                <form id="jobPostForm">
+                    <div class="form-group">
+                        <label for="jobTitle">Job Title</label>
+                        <input type="text" id="jobTitle" required placeholder="e.g., Senior Frontend Developer">
+                    </div>
+                    <div class="form-group">
+                        <label for="jobDescription">Job Description</label>
+                        <textarea id="jobDescription" required placeholder="Describe the role and responsibilities..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobType">Job Type</label>
+                        <select id="jobType" required>
+                            <option value="frontend">Frontend Development</option>
+                            <option value="backend">Backend Development</option>
+                            <option value="marketing">Marketing</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="button recruiter">Post Job</button>
+                </form>
+                <div class="loading" id="jobPostLoading">Generating case study...</div>
+            </div>
         </div>
         <div class="section">
-            <div class="section-title">Applicants</div>
-            <div class="card">List of applicants with filter options</div>
-        </div>
-        <div class="section">
-            <div class="section-title">Video Case Studies</div>
-            <div class="card">Review candidates' submitted video responses</div>
-        </div>
-        <div class="section">
-            <div class="section-title">Team Management</div>
-            <div class="card">Invite other team members to help in hiring</div>
+            <div class="section-title">My Job Posts</div>
+            <div id="jobPostsList">
+                <!-- Job posts will be dynamically added here -->
+            </div>
         </div>
     </div>
 
     <div class="dashboard" id="jobseeker-dashboard">
         <h2>Jobseeker Dashboard</h2>
         <div class="section">
-            <div class="section-title">My Applications</div>
-            <div class="card">Track your application status (Applied, Interviewing, etc.)</div>
-        </div>
-        <div class="section">
             <div class="section-title">Video CV</div>
-            <div class="card">Upload or record your introduction video</div>
+            <div class="card">
+                <form id="videoCVForm">
+                    <div class="form-group">
+                        <label for="videoFile">Upload Video CV</label>
+                        <input type="file" id="videoFile" accept="video/*" required>
+                    </div>
+                    <button type="submit" class="button jobseeker">Upload Video</button>
+                </form>
+                <div class="loading" id="videoUploadLoading">Uploading video...</div>
+            </div>
         </div>
         <div class="section">
-            <div class="section-title">AI Case Study</div>
-            <div class="card">Start or continue your case study challenge</div>
-        </div>
-        <div class="section">
-            <div class="section-title">Feedback Inbox</div>
-            <div class="card">Read recruiter feedback once shared</div>
+            <div class="section-title">Available Case Studies</div>
+            <div id="caseStudiesList">
+                <!-- Case studies will be dynamically added here -->
+            </div>
         </div>
     </div>
+
+    <!-- Firebase and App Scripts -->
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/app.js"></script>
+    <script type="module">
+        import { saveJobPosting, saveVideoCV, submitCaseStudyResponse } from './js/app.js';
+
+        // Handle job post form submission
+        document.getElementById('jobPostForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const loading = document.getElementById('jobPostLoading');
+            loading.classList.add('active');
+
+            try {
+                const jobData = {
+                    title: document.getElementById('jobTitle').value,
+                    description: document.getElementById('jobDescription').value,
+                    type: document.getElementById('jobType').value
+                };
+
+                const jobId = await saveJobPosting(jobData);
+                alert('Job posted successfully!');
+                e.target.reset();
+            } catch (error) {
+                alert('Error posting job: ' + error.message);
+            } finally {
+                loading.classList.remove('active');
+            }
+        });
+
+        // Handle video CV upload
+        document.getElementById('videoCVForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const loading = document.getElementById('videoUploadLoading');
+            loading.classList.add('active');
+
+            try {
+                const videoFile = document.getElementById('videoFile').files[0];
+                const videoURL = await saveVideoCV(videoFile);
+                alert('Video CV uploaded successfully!');
+                e.target.reset();
+            } catch (error) {
+                alert('Error uploading video: ' + error.message);
+            } finally {
+                loading.classList.remove('active');
+            }
+        });
+    </script>
 </body>
 </html> 
