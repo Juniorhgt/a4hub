@@ -13,194 +13,261 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: #f9fafb; color: #111; }
-        .hero {
-            min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
-            align-items: center; text-align: center; padding: 2rem; background: linear-gradient(to right, #ffffff, #f0f0f0);
-        }
-        .logo { font-size: 2.5rem; font-weight: 700; color: #222; margin-bottom: 1rem; }
-        .subtitle { font-size: 1.25rem; margin-bottom: 2rem; color: #555; }
-        .actions { display: flex; gap: 2rem; flex-wrap: wrap; }
-        .button {
-            padding: 1rem 2rem; border: none; border-radius: 2rem; font-size: 1rem; cursor: pointer;
-            transition: transform 0.2s ease; font-weight: 600;
+        nav { background: #fff; padding: 1rem 2rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 1.5rem; font-weight: 700; color: #222; }
+        .container { max-width: 800px; margin: 2rem auto; background: #fff; border-radius: 1rem; padding: 2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        h1, h2 { color: #333; margin-bottom: 1rem; }
+        p { color: #555; margin-bottom: 1rem; }
+        .stats { display: flex; gap: 1.5rem; margin: 2rem 0; }
+        .stat { flex: 1; background: #f3f4f6; padding: 1rem; border-radius: 0.75rem; text-align: center; }
+        .stat h3 { font-size: 1.5rem; color: #4f46e5; }
+        .buttons { text-align: center; margin-top: 2rem; }
+        .button { 
+            padding: 0.75rem 1.5rem; 
+            border: none; 
+            border-radius: 2rem; 
+            cursor: pointer; 
+            font-weight: 600; 
+            margin: 0 0.5rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s ease;
         }
         .button:hover { transform: scale(1.05); }
-        .jobseeker { background: #4f46e5; color: white; }
-        .recruiter { background: #f97316; color: white; }
-        .beta-tag {
-            position: absolute; top: 1rem; right: 1rem; background: #ffe08a;
-            padding: 0.5rem 1rem; border-radius: 1rem; font-size: 0.85rem; font-weight: 600; color: #7a5200;
-        }
-        .dashboard {
-            padding: 4rem 2rem; max-width: 1000px; margin: auto;
-        }
-        .dashboard h2 { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
-        .dashboard .section { margin-bottom: 2rem; }
-        .section-title {
-            font-weight: 600; font-size: 1.25rem; margin-bottom: 1rem; color: #333;
-        }
-        .card {
-            background: white; border-radius: 1rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem; margin-bottom: 1rem; position: relative;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #333;
-        }
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-        }
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-        .status-pending { background: #fef3c7; color: #92400e; }
-        .status-reviewing { background: #dbeafe; color: #1e40af; }
-        .status-completed { background: #dcfce7; color: #166534; }
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 1rem;
-            color: #666;
-        }
-        .loading.active {
-            display: block;
-        }
+        .recruiter { background: #f97316; color: #fff; }
+        .jobseeker { background: #4f46e5; color: #fff; }
+        .step-nav { display: flex; justify-content: space-between; list-style: none; margin: 2rem 0; }
+        .step-nav li { flex: 1; text-align: center; position: relative; }
+        .step-nav li::after { content: ''; position: absolute; top: 50%; right: -50%; width: 100%; height: 2px; background: #ddd; z-index: -1; }
+        .step-nav li:last-child::after { display: none; }
+        .step-nav span { display: inline-block; width: 2rem; height: 2rem; line-height: 2rem; border-radius: 50%; background: #ddd; color: #555; }
+        .step-nav .active span { background: #4f46e5; color: #fff; }
+        form { margin-top: 1rem; }
+        label { display: block; margin-bottom: 0.5rem; color: #374151; }
+        input, textarea, select { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.75rem; margin-bottom: 1rem; font-size: 1rem; }
+        textarea { resize: vertical; min-height: 120px; }
+        .popup-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; }
+        .popup { background: #fff; padding: 2rem; border-radius: 1rem; max-width: 400px; text-align: center; }
+        .popup p { margin-bottom: 1.5rem; }
+        .dashboard { max-width: 800px; margin: 2rem auto; }
+        .job-card { background: #fff; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 1rem; position: relative; }
+        .job-card h3 { margin-bottom: 0.5rem; }
+        .job-card .stats-small { font-size: 0.9rem; color: #6b7280; }
+        .error { color: #dc2626; font-size: 0.875rem; margin-top: 0.5rem; display: none; }
+        .error.active { display: block; }
+        .loading { display: none; text-align: center; padding: 1rem; color: #666; }
+        .loading.active { display: block; }
     </style>
 </head>
 <body>
-    <div class="hero">
-        <div class="beta-tag">BETA</div>
-        <div class="logo">A4Hub</div>
-        <div class="subtitle">You are more than an A4 sheet of paper.</div>
-        <div class="actions">
-            <button class="button recruiter" onclick="document.getElementById('recruiter-dashboard').scrollIntoView({ behavior: 'smooth' })">I'm Hiring</button>
-            <button class="button jobseeker" onclick="document.getElementById('jobseeker-dashboard').scrollIntoView({ behavior: 'smooth' })">I'm Job Hunting</button>
+    <nav><div class="logo">A4Hub</div></nav>
+
+    <section class="container">
+        <h1>Why Choose A4Hub?</h1>
+        <p>Connect top talent to your team faster with AI-driven case studies, real-video insights, and transparent stats.</p>
+        <div class="stats">
+            <div class="stat"><h3>95%</h3><p>Interview-to-Hire Rate</p></div>
+            <div class="stat"><h3>120+</h3><p>Companies Onboarded</p></div>
+            <div class="stat"><h3>5x</h3><p>Faster Hiring Process</p></div>
+        </div>
+        <div class="buttons">
+            <a href="pages/auth/signup.html?role=recruiter" class="button recruiter">I'm Hiring</a>
+            <a href="pages/auth/signup.html?role=jobseeker" class="button jobseeker">I'm Job Hunting</a>
+        </div>
+    </section>
+
+    <!-- Recruiter Profile Section -->
+    <section id="recruiter-profile" class="container" style="display:none;">
+        <ul class="step-nav">
+            <li class="active"><span>1</span><div>Company Info</div></li>
+            <li><span>2</span><div>Job Details</div></li>
+            <li><span>3</span><div>Case Study</div></li>
+            <li><span>4</span><div>Review</div></li>
+        </ul>
+        <h2>Tell Us About Your Company</h2>
+        <form id="company-form">
+            <label for="company-name">Company Name</label>
+            <input type="text" id="company-name" required />
+            <label for="industry">Industry</label>
+            <input type="text" id="industry" required />
+            <label for="location">Location</label>
+            <input type="text" id="location" required />
+            <label for="size">Company Size</label>
+            <select id="size">
+                <option>1-10</option><option>11-50</option><option>51-200</option><option>200+</option>
+            </select>
+            <div class="error" id="company-error"></div>
+            <button type="button" class="button recruiter" onclick="nextStep('recruiter-job')">Next</button>
+        </form>
+    </section>
+
+    <!-- Job Details Section -->
+    <section id="recruiter-job" class="container" style="display:none;">
+        <ul class="step-nav">
+            <li><span>1</span><div>Company Info</div></li>
+            <li class="active"><span>2</span><div>Job Details</div></li>
+            <li><span>3</span><div>Case Study</div></li>
+            <li><span>4</span><div>Review</div></li>
+        </ul>
+        <h2>Create Job Post</h2>
+        <form id="job-form">
+            <label for="title">Job Title</label>
+            <input type="text" id="title" required />
+            <label for="experience">Years of Experience Required</label>
+            <input type="number" id="experience" min="0" required />
+            <label for="skills">Key Skills (comma separated)</label>
+            <input type="text" id="skills" placeholder="e.g. JavaScript, React, Node.js" />
+            <label for="applicants">Max Applicants to Review</label>
+            <input type="number" id="applicants" min="1" value="10" />
+            <div class="error" id="job-error"></div>
+            <button type="button" class="button recruiter" onclick="nextStep('recruiter-case')">Next</button>
+        </form>
+    </section>
+
+    <!-- Case Study Section -->
+    <section id="recruiter-case" class="container" style="display:none;">
+        <ul class="step-nav">
+            <li><span>1</span><div>Company Info</div></li>
+            <li><span>2</span><div>Job Details</div></li>
+            <li class="active"><span>3</span><div>Case Study</div></li>
+            <li><span>4</span><div>Review</div></li>
+        </ul>
+        <h2>Generate Case Study</h2>
+        <form id="case-form">
+            <label for="prompt">What should the candidate solve?</label>
+            <textarea id="prompt" placeholder="Describe the task or problem..." required></textarea>
+            <div class="error" id="case-error"></div>
+            <button type="button" class="button recruiter" onclick="showPopup()">Generate Case Study</button>
+        </form>
+    </section>
+
+    <!-- Confirmation Popup -->
+    <div id="popup" class="popup-overlay">
+        <div class="popup">
+            <p>Tip: Involve the direct manager for best results.</p>
+            <button class="button recruiter" onclick="confirmGenerate()">Got It, Generate</button>
         </div>
     </div>
 
-    <div class="dashboard" id="recruiter-dashboard">
-        <h2>Recruiter Dashboard</h2>
-        <div class="section">
-            <div class="section-title">Post a Job</div>
-            <div class="card">
-                <form id="jobPostForm">
-                    <div class="form-group">
-                        <label for="jobTitle">Job Title</label>
-                        <input type="text" id="jobTitle" required placeholder="e.g., Senior Frontend Developer">
-                    </div>
-                    <div class="form-group">
-                        <label for="jobDescription">Job Description</label>
-                        <textarea id="jobDescription" required placeholder="Describe the role and responsibilities..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="jobType">Job Type</label>
-                        <select id="jobType" required>
-                            <option value="frontend">Frontend Development</option>
-                            <option value="backend">Backend Development</option>
-                            <option value="marketing">Marketing</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="button recruiter">Post Job</button>
-                </form>
-                <div class="loading" id="jobPostLoading">Generating case study...</div>
-            </div>
+    <!-- Review & Dashboard Section -->
+    <section id="recruiter-review" class="container" style="display:none;">
+        <ul class="step-nav">
+            <li><span>1</span><div>Company Info</div></li>
+            <li><span>2</span><div>Job Details</div></li>
+            <li><span>3</span><div>Case Study</div></li>
+            <li class="active"><span>4</span><div>Review</div></li>
+        </ul>
+        <h2>Review & Publish</h2>
+        <div class="card">
+            <h3 id="review-title"></h3>
+            <p id="review-prompt"></p>
+            <div class="stats-small">Experience: <span id="review-exp"></span> yrs • Skills: <span id="review-skills"></span> • Applicants: <span id="review-applicants"></span></div>
+            <div class="error" id="review-error"></div>
+            <button class="button recruiter" onclick="publish()">Publish Job</button>
         </div>
-        <div class="section">
-            <div class="section-title">My Job Posts</div>
-            <div id="jobPostsList">
-                <!-- Job posts will be dynamically added here -->
-            </div>
-        </div>
-    </div>
+    </section>
 
-    <div class="dashboard" id="jobseeker-dashboard">
-        <h2>Jobseeker Dashboard</h2>
-        <div class="section">
-            <div class="section-title">Video CV</div>
-            <div class="card">
-                <form id="videoCVForm">
-                    <div class="form-group">
-                        <label for="videoFile">Upload Video CV</label>
-                        <input type="file" id="videoFile" accept="video/*" required>
-                    </div>
-                    <button type="submit" class="button jobseeker">Upload Video</button>
-                </form>
-                <div class="loading" id="videoUploadLoading">Uploading video...</div>
-            </div>
-        </div>
-        <div class="section">
-            <div class="section-title">Available Case Studies</div>
-            <div id="caseStudiesList">
-                <!-- Case studies will be dynamically added here -->
-            </div>
-        </div>
-    </div>
+    <!-- Published Jobs Dashboard -->
+    <section id="recruiter-dashboard" class="dashboard" style="display:none;">
+        <h2>Your Jobs</h2>
+        <div id="jobs-list"></div>
+    </section>
 
     <!-- Firebase and App Scripts -->
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/app.js"></script>
     <script type="module">
-        import { saveJobPosting, saveVideoCV, submitCaseStudyResponse } from './js/app.js';
+        import { saveJobPosting, generateCaseStudy } from './js/app.js';
 
-        // Handle job post form submission
-        document.getElementById('jobPostForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const loading = document.getElementById('jobPostLoading');
-            loading.classList.add('active');
+        let data = {};
+        
+        function startFlow(section) {
+            document.querySelectorAll('section').forEach(s=>s.style.display='none');
+            document.getElementById(section).style.display='block';
+            window.scrollTo(0,0);
+        }
 
-            try {
-                const jobData = {
-                    title: document.getElementById('jobTitle').value,
-                    description: document.getElementById('jobDescription').value,
-                    type: document.getElementById('jobType').value
+        function nextStep(nextId) {
+            ['recruiter-profile','recruiter-job','recruiter-case','recruiter-review'].forEach(id=>document.getElementById(id)?.style.display='none');
+            
+            // Save data
+            if(nextId==='recruiter-job') {
+                data.company = {
+                    name: document.getElementById('company-name').value,
+                    industry: document.getElementById('industry').value,
+                    location: document.getElementById('location').value,
+                    size: document.getElementById('size').value
                 };
-
-                const jobId = await saveJobPosting(jobData);
-                alert('Job posted successfully!');
-                e.target.reset();
-            } catch (error) {
-                alert('Error posting job: ' + error.message);
-            } finally {
-                loading.classList.remove('active');
             }
-        });
+            if(nextId==='recruiter-case') {
+                data.job = {
+                    title: document.getElementById('title').value,
+                    experience: document.getElementById('experience').value,
+                    skills: document.getElementById('skills').value,
+                    applicants: document.getElementById('applicants').value
+                };
+            }
+            document.getElementById(nextId).style.display='block';
+        }
 
-        // Handle video CV upload
-        document.getElementById('videoCVForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const loading = document.getElementById('videoUploadLoading');
+        function showPopup() {
+            document.getElementById('popup').style.display='flex';
+        }
+
+        async function confirmGenerate() {
+            document.getElementById('popup').style.display='none';
+            const loading = document.getElementById('case-error');
             loading.classList.add('active');
+            loading.textContent = 'Generating case study...';
 
             try {
-                const videoFile = document.getElementById('videoFile').files[0];
-                const videoURL = await saveVideoCV(videoFile);
-                alert('Video CV uploaded successfully!');
-                e.target.reset();
+                // Generate case study using our app.js function
+                data.caseStudy = await generateCaseStudy({
+                    title: data.job.title,
+                    description: document.getElementById('prompt').value
+                });
+
+                // Fill review
+                document.getElementById('review-title').innerText = data.job.title;
+                document.getElementById('review-prompt').innerText = data.caseStudy.description;
+                document.getElementById('review-exp').innerText = data.job.experience;
+                document.getElementById('review-skills').innerText = data.job.skills;
+                document.getElementById('review-applicants').innerText = data.job.applicants;
+                nextStep('recruiter-review');
             } catch (error) {
-                alert('Error uploading video: ' + error.message);
+                loading.textContent = error.message;
             } finally {
                 loading.classList.remove('active');
             }
-        });
+        }
+
+        async function publish() {
+            const loading = document.getElementById('review-error');
+            loading.classList.add('active');
+            loading.textContent = 'Publishing job...';
+
+            try {
+                // Save job posting using our app.js function
+                const jobId = await saveJobPosting({
+                    ...data.job,
+                    company: data.company,
+                    caseStudy: data.caseStudy
+                });
+
+                // Update UI
+                document.getElementById('recruiter-review').style.display='none';
+                document.getElementById('jobs-list').innerHTML +=
+                    `<div class="job-card">
+                        <h3>${data.job.title}</h3>
+                        <div class="stats-small">Applicants: ${data.job.applicants}</div>
+                    </div>`;
+                document.getElementById('recruiter-dashboard').style.display='block';
+            } catch (error) {
+                loading.textContent = error.message;
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
     </script>
 </body>
 </html> 

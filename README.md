@@ -1,83 +1,102 @@
-# A4Hub - Job Application Platform
+# A4Hub - You Are More Than a CV
 
-A4Hub is a modern job application platform that connects job seekers with recruiters through an innovative application process.
+A4Hub is a modern job platform that uses AI-driven case studies and video CVs to connect top talent with companies.
 
 ## Features
 
-- Job posting and management
-- Video introductions
-- Business case challenges
-- Application tracking
-- Interview scheduling
-- Candidate rating system
-
-## Setup
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/a4hub.git
-cd a4hub
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Create a Firebase project and add your configuration:
-- Create a `.env` file in the root directory
-- Add your Firebase configuration:
-```
-FIREBASE_API_KEY=your_api_key
-FIREBASE_AUTH_DOMAIN=your_auth_domain
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_STORAGE_BUCKET=your_storage_bucket
-FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-FIREBASE_APP_ID=your_app_id
-```
-
-4. Start the development server:
-```bash
-npm run dev
-```
+- AI-powered case studies for each role
+- Video CV uploads for better candidate insights
+- Smart matching algorithm
+- Real-time application tracking
+- Modern, responsive design
 
 ## Deployment
 
-### Netlify
+### Prerequisites
 
-1. Push your code to GitHub:
-```bash
-git add .
-git commit -m "Initial commit"
-git push origin main
-```
+1. Install [Node.js](https://nodejs.org/) (v14 or higher)
+2. Install [Firebase CLI](https://firebase.google.com/docs/cli):
+   ```bash
+   npm install -g firebase-tools
+   ```
 
-2. Connect to Netlify:
-- Go to [Netlify](https://www.netlify.com/)
-- Click "New site from Git"
-- Select your repository
-- Configure build settings:
-  - Build command: `npm run build`
-  - Publish directory: `dist`
-- Click "Deploy site"
+### Setup
 
-3. Set up environment variables in Netlify:
-- Go to Site settings > Build & deploy > Environment
-- Add your Firebase configuration variables
+1. Login to Firebase:
+   ```bash
+   firebase login
+   ```
+
+2. Initialize Firebase in your project:
+   ```bash
+   firebase init
+   ```
+   - Select "Hosting"
+   - Select your Firebase project
+   - Use "." as your public directory
+   - Configure as a single-page app: Yes
+   - Don't overwrite index.html: No
+
+3. Update Firebase configuration:
+   - Open `js/firebase-config.js`
+   - Replace the placeholder values with your Firebase project configuration
+
+### Deploy
+
+1. Build and deploy:
+   ```bash
+   firebase deploy
+   ```
+
+2. Your site will be live at: `https://YOUR-PROJECT-ID.web.app`
 
 ## Development
 
-- `npm run dev`: Start development server with hot reloading
-- `npm run build`: Build for production
-- `npm run start`: Start production server
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/a4hub.git
+   cd a4hub
+   ```
 
-## Technologies Used
+2. Start a local server:
+   ```bash
+   # Using Python
+   python -m http.server 8000
+   
+   # Or using Node.js
+   npx serve
+   ```
 
-- Firebase (Authentication, Firestore, Storage)
-- HTML5, CSS3, JavaScript
-- Netlify for hosting
-- Google Meet API for interviews
+3. Open `http://localhost:8000` in your browser
+
+## Project Structure
+
+```
+a4hub/
+├── index.html              # Landing page
+├── pages/
+│   ├── auth/              # Authentication pages
+│   │   ├── login.html
+│   │   └── signup.html
+│   ├── recruiter/         # Recruiter pages
+│   │   └── dashboard.html
+│   └── jobseeker/         # Jobseeker pages
+│       └── dashboard.html
+├── js/
+│   ├── app.js            # Main application logic
+│   └── firebase-config.js # Firebase configuration
+├── firebase.json         # Firebase configuration
+└── README.md            # This file
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-MIT 
+This project is licensed under the MIT License - see the LICENSE file for details. 

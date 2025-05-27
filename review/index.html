@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A4Hub - Modern Recruitment Platform</title>
+    <link rel="icon" type="image/png" href="images/For Web/favicon.png">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .beta-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #f8f9fa;
+            color: #6c757d;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            border-bottom: 1px solid #dee2e6;
+            z-index: 1000;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo img {
+            height: 40px;
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="beta-banner">
+        Beta version — A4Hub is being quietly built in the background.
+    </div>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <span>A4Hub</span>
+            </div>
+            <div class="nav-links">
+                <a href="#about">About</a>
+                <a href="#features">Features</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="hero-section">
+        <div class="hero-content">
+            <h1>Welcome to A4Hub</h1>
+            <p class="hero-subtitle">The Modern Way to Recruit and Get Hired</p>
+            
+            <div class="cta-buttons">
+                <a href="pages/auth/login.html" class="cta-button recruiter">
+                    I'm Hiring
+                    <span class="arrow">→</span>
+                </a>
+                <a href="pages/auth/login.html" class="cta-button jobseeker">
+                    I'm Job Hunting
+                    <span class="arrow">→</span>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <section class="features" id="features">
+        <h2>Why Choose A4Hub?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Video Introductions</h3>
+                <p>Stand out with personal video presentations</p>
+            </div>
+            <div class="feature-card">
+                <h3>AI Case Studies</h3>
+                <p>Show your skills through real-world scenarios</p>
+            </div>
+            <div class="feature-card">
+                <h3>Real-time Tracking</h3>
+                <p>Know exactly where you stand in the process</p>
+            </div>
+            <div class="feature-card">
+                <h3>Feedback Inbox</h3>
+                <p>Get valuable insights from recruiters</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>A4Hub</h4>
+                <p>Modern recruitment for modern teams</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="pages/tracking/status.html">Track Application</a>
+                <a href="#features">Features</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Your app's JavaScript -->
+    <script src="js/main.js"></script>
+</body>
+</html> 

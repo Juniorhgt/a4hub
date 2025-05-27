@@ -47,78 +47,169 @@ async function generateCaseStudy(jobDetails) {
     return dummyCaseStudies[jobType];
 }
 
-// Function to save job posting
-async function saveJobPosting(jobData) {
+// Authentication functions
+export async function signInWithEmail(email, password) {
+    try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        return userCredential.user;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+
+export async function signUpWithEmail(email, password, userData) {
+    try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        
+        // Save additional user data
+        await db.collection('users').doc(user.uid).set({
+            ...userData,
+            email,
+            createdAt: new Date()
+        });
+        
+        return user;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+
+export async function signInWithGoogle(additionalData = {}) {
+    try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const userCredential = await auth.signInWithPopup(provider);
+        const user = userCredential.user;
+        
+        // Check if user exists
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        
+        if (!userDoc.exists) {
+            // Save user data for new users
+            await db.collection('users').doc(user.uid).set({
+                name: user.displayName,
+                email: user.email,
+                ...additionalData,
+                createdAt: new Date()
+            });
+        }
+        
+        return user;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+
+export async function signOut() {
+    try {
+        await auth.signOut();
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+
+// Job posting functions
+export async function saveJobPosting(jobData) {
     try {
         const user = auth.currentUser;
         if (!user) throw new Error('User not authenticated');
 
-        // Generate a dummy case study
-        const caseStudy = await generateCaseStudy(jobData);
-
-        // Save to Firestore
         const jobRef = await db.collection('jobs').add({
             ...jobData,
-            caseStudy,
-            createdBy: user.uid,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            status: 'active',
-            applicants: []
+            recruiterId: user.uid,
+            createdAt: new Date(),
+            status: 'active'
         });
 
         return jobRef.id;
     } catch (error) {
-        console.error('Error saving job posting:', error);
-        throw error;
+        throw new Error(error.message);
     }
 }
 
-// Function to save video CV
-async function saveVideoCV(videoFile) {
+export async function getJobPostings() {
+    try {
+        const snapshot = await db.collection('jobs')
+            .where('status', '==', 'active')
+            .orderBy('createdAt', 'desc')
+            .get();
+
+        return snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+
+// Video CV functions
+export async function saveVideoCV(videoFile) {
     try {
         const user = auth.currentUser;
         if (!user) throw new Error('User not authenticated');
 
-        // Simulate file upload
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Generate a dummy URL
-        const dummyURL = `https://storage.googleapis.com/a4hub-videos/${user.uid}/${Date.now()}_${videoFile.name}`;
+        // Upload video to Firebase Storage
+        const storageRef = storage.ref();
+        const videoRef = storageRef.child(`videos/${user.uid}/${Date.now()}_${videoFile.name}`);
+        await videoRef.put(videoFile);
+        const videoURL = await videoRef.getDownloadURL();
 
-        // Save to Firestore
-        await db.collection('users').doc(user.uid).update({
-            videoCV: dummyURL,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        // Save video metadata to Firestore
+        await db.collection('videoCVs').add({
+            userId: user.uid,
+            videoURL,
+            createdAt: new Date()
         });
 
-        return dummyURL;
+        return videoURL;
     } catch (error) {
-        console.error('Error saving video CV:', error);
-        throw error;
+        throw new Error(error.message);
     }
 }
 
-// Function to submit case study response
-async function submitCaseStudyResponse(jobId, response) {
+// Case study functions
+export async function submitCaseStudyResponse(jobId, responseData) {
     try {
         const user = auth.currentUser;
         if (!user) throw new Error('User not authenticated');
 
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Save to Firestore
         await db.collection('applications').add({
             jobId,
             userId: user.uid,
-            response,
-            submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            status: 'submitted',
-            feedback: null
+            ...responseData,
+            status: 'pending',
+            createdAt: new Date()
         });
     } catch (error) {
-        console.error('Error submitting case study response:', error);
-        throw error;
+        throw new Error(error.message);
+    }
+}
+
+// User profile functions
+export async function getUserProfile() {
+    try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('User not authenticated');
+
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        return userDoc.data();
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+
+export async function updateUserProfile(profileData) {
+    try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('User not authenticated');
+
+        await db.collection('users').doc(user.uid).update({
+            ...profileData,
+            updatedAt: new Date()
+        });
+    } catch (error) {
+        throw new Error(error.message);
     }
 }
 

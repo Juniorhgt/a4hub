@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Recruiter Dashboard - A4Hub</title>
+    <title>Jobseeker Dashboard - A4Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
@@ -27,7 +27,7 @@
             transition: transform 0.2s ease;
         }
         .button:hover { transform: scale(1.05); }
-        .primary { background: #f97316; color: white; }
+        .primary { background: #4f46e5; color: white; }
         .section {
             background: white;
             border-radius: 1rem;
@@ -51,8 +51,7 @@
             color: #333;
         }
         .form-group input,
-        .form-group textarea,
-        .form-group select {
+        .form-group textarea {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid #ddd;
@@ -95,8 +94,9 @@
             font-size: 0.875rem;
             font-weight: 500;
         }
-        .status-active { background: #dcfce7; color: #166534; }
-        .status-draft { background: #fef3c7; color: #92400e; }
+        .status-applied { background: #dbeafe; color: #1e40af; }
+        .status-interviewing { background: #fef3c7; color: #92400e; }
+        .status-offered { background: #dcfce7; color: #166534; }
         .loading {
             display: none;
             text-align: center;
@@ -115,6 +115,13 @@
         .error.active {
             display: block;
         }
+        .video-preview {
+            width: 100%;
+            max-width: 400px;
+            margin: 1rem 0;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body>
@@ -122,51 +129,38 @@
 
     <div class="dashboard">
         <div class="header">
-            <h1>Recruiter Dashboard</h1>
-            <button class="button primary" onclick="showJobForm()">Post New Job</button>
+            <h1>Jobseeker Dashboard</h1>
+            <button class="button primary" onclick="showVideoForm()">Upload Video CV</button>
         </div>
 
-        <div class="section" id="jobForm" style="display: none;">
-            <div class="section-title">Post a New Job</div>
-            <form id="newJobForm">
+        <div class="section" id="videoForm" style="display: none;">
+            <div class="section-title">Upload Video CV</div>
+            <form id="videoCVForm">
                 <div class="form-group">
-                    <label for="jobTitle">Job Title</label>
-                    <input type="text" id="jobTitle" required placeholder="e.g., Senior Frontend Developer">
+                    <label for="videoFile">Choose Video File</label>
+                    <input type="file" id="videoFile" accept="video/*" required>
                 </div>
                 <div class="form-group">
-                    <label for="jobDescription">Job Description</label>
-                    <textarea id="jobDescription" required placeholder="Describe the role and responsibilities..."></textarea>
+                    <label for="videoDescription">Video Description</label>
+                    <textarea id="videoDescription" required placeholder="Tell us about yourself and your experience..."></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="jobType">Job Type</label>
-                    <select id="jobType" required>
-                        <option value="frontend">Frontend Development</option>
-                        <option value="backend">Backend Development</option>
-                        <option value="marketing">Marketing</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="experience">Years of Experience Required</label>
-                    <input type="number" id="experience" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label for="skills">Key Skills (comma separated)</label>
-                    <input type="text" id="skills" placeholder="e.g. JavaScript, React, Node.js">
-                </div>
-                <div class="form-group">
-                    <label for="applicants">Max Applicants to Review</label>
-                    <input type="number" id="applicants" min="1" value="10">
-                </div>
-                <button type="submit" class="button primary">Post Job</button>
+                <button type="submit" class="button primary">Upload Video</button>
             </form>
-            <div class="loading" id="jobPostLoading">Generating case study...</div>
-            <div class="error" id="jobPostError"></div>
+            <div class="loading" id="videoUploadLoading">Uploading video...</div>
+            <div class="error" id="videoUploadError"></div>
         </div>
 
         <div class="section">
-            <div class="section-title">My Job Posts</div>
-            <div class="job-list" id="jobList">
-                <!-- Jobs will be dynamically added here -->
+            <div class="section-title">My Applications</div>
+            <div class="job-list" id="applicationsList">
+                <!-- Applications will be dynamically added here -->
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Available Jobs</div>
+            <div class="job-list" id="jobsList">
+                <!-- Available jobs will be dynamically added here -->
             </div>
         </div>
     </div>
@@ -175,37 +169,30 @@
     <script type="module" src="../../js/firebase-config.js"></script>
     <script type="module" src="../../js/app.js"></script>
     <script type="module">
-        import { saveJobPosting, getJobPostings } from '../../js/app.js';
+        import { saveVideoCV, submitCaseStudyResponse, getJobPostings } from '../../js/app.js';
 
-        // Show/hide job form
-        window.showJobForm = function() {
-            const form = document.getElementById('jobForm');
+        // Show/hide video form
+        window.showVideoForm = function() {
+            const form = document.getElementById('videoForm');
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
         };
 
-        // Handle job post form submission
-        document.getElementById('newJobForm').addEventListener('submit', async (e) => {
+        // Handle video CV upload
+        document.getElementById('videoCVForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const loading = document.getElementById('jobPostLoading');
-            const error = document.getElementById('jobPostError');
+            const loading = document.getElementById('videoUploadLoading');
+            const error = document.getElementById('videoUploadError');
             loading.classList.add('active');
             error.classList.remove('active');
 
             try {
-                const jobData = {
-                    title: document.getElementById('jobTitle').value,
-                    description: document.getElementById('jobDescription').value,
-                    type: document.getElementById('jobType').value,
-                    experience: document.getElementById('experience').value,
-                    skills: document.getElementById('skills').value,
-                    maxApplicants: document.getElementById('applicants').value
-                };
-
-                const jobId = await saveJobPosting(jobData);
-                alert('Job posted successfully!');
+                const videoFile = document.getElementById('videoFile').files[0];
+                const description = document.getElementById('videoDescription').value;
+                const videoURL = await saveVideoCV(videoFile);
+                alert('Video CV uploaded successfully!');
                 e.target.reset();
-                showJobForm();
-                loadJobs(); // Reload the job list
+                showVideoForm();
+                loadApplications(); // Reload applications
             } catch (error) {
                 error.textContent = error.message;
                 error.classList.add('active');
@@ -214,20 +201,40 @@
             }
         });
 
-        // Load jobs
+        // Load applications
+        async function loadApplications() {
+            const applicationsList = document.getElementById('applicationsList');
+            try {
+                const applications = await getApplications();
+                applicationsList.innerHTML = applications.map(app => `
+                    <div class="job-card">
+                        <h3>${app.jobTitle}</h3>
+                        <p>${app.company}</p>
+                        <div class="job-meta">
+                            <span class="status-badge status-${app.status}">${app.status}</span>
+                            <span>Applied on ${new Date(app.appliedDate).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading applications:', error);
+            }
+        }
+
+        // Load available jobs
         async function loadJobs() {
-            const jobList = document.getElementById('jobList');
+            const jobsList = document.getElementById('jobsList');
             try {
                 const jobs = await getJobPostings();
-                jobList.innerHTML = jobs.map(job => `
+                jobsList.innerHTML = jobs.map(job => `
                     <div class="job-card">
                         <h3>${job.title}</h3>
                         <p>${job.description}</p>
                         <div class="job-meta">
-                            <span class="status-badge status-${job.status}">${job.status}</span>
-                            <span>${job.applicants || 0} applicants</span>
                             <span>${job.experience} years exp.</span>
+                            <span>${job.skills}</span>
                         </div>
+                        <button class="button primary" onclick="applyForJob('${job.id}')">Apply Now</button>
                     </div>
                 `).join('');
             } catch (error) {
@@ -235,7 +242,22 @@
             }
         }
 
-        // Load jobs on page load
+        // Apply for a job
+        window.applyForJob = async function(jobId) {
+            try {
+                await submitCaseStudyResponse(jobId, {
+                    // This will be replaced with real case study response
+                    response: "I would like to apply for this position..."
+                });
+                alert('Application submitted successfully!');
+                loadApplications(); // Reload applications
+            } catch (error) {
+                alert('Error submitting application: ' + error.message);
+            }
+        };
+
+        // Load data on page load
+        loadApplications();
         loadJobs();
     </script>
 </body>

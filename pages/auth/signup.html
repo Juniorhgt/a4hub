@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - A4Hub</title>
+    <title>Sign Up - A4Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
@@ -46,7 +46,8 @@
             font-weight: 500;
             color: #333;
         }
-        .form-group input {
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid #ddd;
@@ -114,27 +115,55 @@
         .loading.active {
             display: block;
         }
+        .login-link {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: #666;
+        }
+        .login-link a {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-card">
             <div class="logo">A4Hub</div>
-            <form id="loginForm">
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" required placeholder="Enter your full name">
+                </div>
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" required placeholder="Enter your email">
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" required placeholder="Enter your password">
+                    <input type="password" id="password" required placeholder="Create a password">
+                </div>
+                <div class="form-group">
+                    <label for="role">I am a</label>
+                    <select id="role" required>
+                        <option value="jobseeker">Job Seeker</option>
+                        <option value="recruiter">Recruiter</option>
+                    </select>
                 </div>
                 <div class="error" id="errorMessage"></div>
-                <button type="submit" class="button primary">Login</button>
+                <button type="submit" class="button primary">Create Account</button>
                 <div class="divider"><span>or</span></div>
                 <button type="button" class="button secondary" onclick="signInWithGoogle()">Continue with Google</button>
             </form>
-            <div class="loading" id="loading">Logging in...</div>
+            <div class="loading" id="loading">Creating account...</div>
+            <div class="login-link">
+                Already have an account? <a href="login.html">Log in</a>
+            </div>
         </div>
     </div>
 
@@ -142,14 +171,10 @@
     <script type="module" src="../../js/firebase-config.js"></script>
     <script type="module" src="../../js/app.js"></script>
     <script type="module">
-        import { signInWithEmail, signInWithGoogle } from '../../js/app.js';
+        import { signUpWithEmail, signInWithGoogle } from '../../js/app.js';
 
-        // Get role from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const role = urlParams.get('role') || 'jobseeker';
-
-        // Handle login form submission
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        // Handle signup form submission
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const loading = document.getElementById('loading');
             const errorMessage = document.getElementById('errorMessage');
@@ -157,9 +182,11 @@
             errorMessage.classList.remove('active');
 
             try {
+                const name = document.getElementById('name').value;
                 const email = document.getElementById('email').value;
                 const password = document.getElementById('password').value;
-                await signInWithEmail(email, password);
+                const role = document.getElementById('role').value;
+                await signUpWithEmail(email, password, { name, role });
                 // Redirect based on role
                 window.location.href = `../${role}/dashboard.html`;
             } catch (error) {
@@ -178,7 +205,8 @@
             errorMessage.classList.remove('active');
 
             try {
-                await signInWithGoogle();
+                const role = document.getElementById('role').value;
+                await signInWithGoogle({ role });
                 // Redirect based on role
                 window.location.href = `../${role}/dashboard.html`;
             } catch (error) {

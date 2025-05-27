@@ -5,14 +5,15 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
 
-// Firebase configuration
+// Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyDaD8SmTo7vXYK-M4gEYEYXAe1WPt-cBgg",
+    authDomain: "a4hub-f721a.firebaseapp.com",
+    projectId: "a4hub-f721a",
+    storageBucket: "a4hub-f721a.firebasestorage.app",
+    messagingSenderId: "192326389784",
+    appId: "1:192326389784:web:6f22e46125e72b1541f36d",
+    measurementId: "G-C27516Q26Q"
 };
 
 // Initialize Firebase
